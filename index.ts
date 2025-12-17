@@ -17,5 +17,5 @@ export const app = new Elysia()
 	.use(routes)
 	.listen(3000);
 
-console.log("🦊 serveur → http://localhost:3000");
-console.log("📖 swagger UI → http://localhost:3000/swagger");
+console.log("🦊 Server → http://localhost:3000");
+console.log("📖 Swagger → http://localhost:3000/swagger");
