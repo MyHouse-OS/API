@@ -23,3 +23,13 @@ model Client {
   ClientID    String @unique
   ClientToken String
 }
+
+model HomeState {
+  id          Int      @id @default(autoincrement())
+  temperature String
+  light       Boolean  @default(false)
+  door        Boolean  @default(false)
+  heat        Boolean  @default(false)
+  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt   DateTime @default(now())
+}
