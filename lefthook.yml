@@ -1,0 +1,9 @@
+pre-commit:
+  commands:
+    format:
+      glob: "*.{js,ts,jsx,tsx,json}"
+      run: bun format
+      stage_fixed: true
+    lint:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: bun lint
