@@ -1,0 +1,151 @@
+# Configuration Bun pour MyHouse OS
+
+# ===================================
+# Configuration du Runtime
+# ===================================
+
+# Niveau de log (debug | warn | error)
+logLevel = "warn"
+
+# Désactiver la télémétrie
+telemetry = false
+
+# Configuration de la console
+[console]
+# Profondeur d'inspection des objets dans console.log
+depth = 3
+
+# ===================================
+# Configuration du Test Runner
+# ===================================
+
+[test]
+# Répertoire racine des tests
+root = "."
+
+# Activer le coverage par défaut
+coverage = true
+
+# Seuils de couverture de code
+# Le build échouera si ces seuils ne sont pas atteints
+[test.coverageThreshold]
+line = 0.8      # 80% de couverture des lignes
+function = 0.75 # 75% de couverture des fonctions
+statement = 0.8 # 80% de couverture des statements
+
+# Exclure les fichiers de test du calcul de coverage
+coverageSkipTestFiles = true
+
+# Patterns de fichiers à ignorer dans le coverage
+coveragePathIgnorePatterns = [
+  "**/*.test.ts",
+  "**/*.spec.ts",
+  "**/node_modules/**",
+  "**/coverage/**",
+  "**/*.config.*",
+  "**/dist/**",
+  "**/prisma/**"
+]
+
+# Format des rapports de coverage
+coverageReporter = ["text", "lcov", "html"]
+
+# Répertoire où sauvegarder les rapports de coverage
+coverageDir = "coverage"
+
+# Exécuter les tests dans un ordre aléatoire pour détecter les interdépendances
+randomize = false
+
+# N'afficher que les tests qui échouent
+onlyFailures = false
+
+# Configuration du reporter
+[test.reporter]
+# Format de sortie compact avec des points
+dots = false
+
+# ===================================
+# Configuration du Package Manager
+# ===================================
+
+[install]
+# Installer les dépendances optionnelles
+optional = true
+
+# Installer les dépendances de développement
+dev = true
+
+# Installer les peer dependencies
+peer = true
+
+# Mode production (désactivé par défaut)
+production = false
+
+# Utiliser des versions exactes dans package.json
+exact = false
+
+# Générer un lockfile texte (bun.lock) au lieu de binaire
+saveTextLockfile = true
+
+# Comportement d'auto-installation
+# auto: résout depuis node_modules local, sinon auto-installe
+# force: toujours auto-installer
+# disable: jamais d'auto-installation
+# fallback: vérifie node_modules puis auto-installe si non trouvé
+auto = "auto"
+
+# Lockfile figé (empêche les mises à jour du lockfile)
+frozenLockfile = false
+
+# Stratégie de linkage (hoisted | isolated)
+# hoisted: dépendances dans un node_modules partagé
+# isolated: dépendances dans chaque installation de package
+linker = "hoisted"
+
+# Configuration du cache
+[install.cache]
+# Répertoire du cache
+dir = "~/.bun/install/cache"
+# Ne pas charger depuis le cache global
+disable = false
+# Toujours résoudre les dernières versions depuis le registre
+disableManifest = false
+
+# Configuration du lockfile
+[install.lockfile]
+# Générer un lockfile lors de bun install
+save = true
+
+# Configuration de sécurité
+[install.security]
+# Scanner de sécurité pour analyser les packages avant installation
+# Décommentez et configurez si vous installez un scanner de sécurité
+# scanner = "@acme/bun-security-scanner"
+
+# Âge minimum de publication (en secondes) pour les versions de packages
+# 259200 secondes = 3 jours
+# Cela protège contre les packages malveillants récemment publiés
+minimumReleaseAge = 259200
+
+# Packages exemptés de l'âge minimum (pour les mises à jour fréquentes)
+minimumReleaseAgeExcludes = [
+  "@types/bun",
+  "typescript",
+  "elysia",
+  "@elysiajs/swagger",
+  "@biomejs/biome"
+]
+
+# ===================================
+# Configuration de bun run
+# ===================================
+
+[run]
+# Utiliser le shell de Bun au lieu du shell système
+shell = "bun"
+
+# Aliaser automatiquement 'node' vers 'bun'
+bun = true
+
+# Supprimer l'affichage de la commande en cours d'exécution
+silent = false
