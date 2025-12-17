@@ -1,34 +1,39 @@
-import { Elysia } from 'elysia'
-import { swagger } from '@elysiajs/swagger'
+import { swagger } from "@elysiajs/swagger";
+import { Elysia } from "elysia";
 
 export const app = new Elysia()
-    .use(
-        swagger({
-            documentation: {
-                info: {
-                    title: 'MyHouse OS',
-                    version: '1.0.0'
-                }
-            },
-            path: '/swagger'
-        })
-    )
-    .get('/temp', () => 'OK')
-    .post('/temp', () => 'OK')
+	.use(
+		swagger({
+			documentation: {
+				info: {
+					title: "MyHouse OS",
+					version: "1.0.0",
+				},
+			},
+			path: "/swagger",
+		}),
+	)
+	.group("/temp", { detail: { tags: ["Temperature"] } }, (app) =>
+		app.get("/", () => "OK").post("/", () => "OK"),
+	)
 
-    .get('/toggle/light', () => 'OK')
-    .post('/toggle/light', () => 'OK')
+	.group("/toggle", { detail: { tags: ["Toggle"] } }, (app) =>
+		app
+			.get("/light", () => "OK")
+			.post("/light", () => "OK")
 
-    .get('/toggle/door', () => 'OK')
-    .post('/toggle/door', () => 'OK')
+			.get("/door", () => "OK")
+			.post("/door", () => "OK")
 
-    .get('/toggle/heat', () => 'OK')
-    .post('/toggle/heat', () => 'OK')
+			.get("/heat", () => "OK")
+			.post("/heat", () => "OK"),
+	)
 
-    .get('/auth', () => 'OK')
-    .post('/auth', () => 'OK')
+	.group("/auth", { detail: { tags: ["Authentication"] } }, (app) =>
+		app.get("/", () => "OK").post("/", () => "OK"),
+	)
 
-    .listen(3000)
+	.listen(3000);
 
-console.log('🦊 serveur → http://localhost:3000')
-console.log('📖 swagger UI → http://localhost:3000/swagger')
+console.log("🦊 serveur → http://localhost:3000");
+console.log("📖 swagger UI → http://localhost:3000/swagger");
