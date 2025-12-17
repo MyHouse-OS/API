@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
-import { lightRoutes } from "./light";
 import { doorRoutes } from "./door";
 import { heatRoutes } from "./heat";
+import { lightRoutes } from "./light";
 
 export const toggleRoutes = new Elysia()
 	.group("/light", (app) => app.use(lightRoutes))

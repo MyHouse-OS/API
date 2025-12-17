@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
+import { authRoutes } from "./auth";
 import { tempRoutes } from "./temp";
 import { toggleRoutes } from "./toggle";
-import { authRoutes } from "./auth";
 
 export const routes = new Elysia()
 	.group("/temp", { detail: { tags: ["Temperature"] } }, (app) =>
