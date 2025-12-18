@@ -32,6 +32,7 @@ services:
       db:
         condition: service_healthy
     restart: unless-stopped
+    entrypoint: ["/bin/sh", "-c", "bunx prisma migrate deploy && bun run index.ts"]
 
 volumes:
   postgres_data:
