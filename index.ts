@@ -36,7 +36,19 @@ eventBus.on(EVENTS.NEW_CONNECTION, () => {
 if (import.meta.main) {
 	initRuleEngine();
 
-	app.listen(3000);
-	console.log("🦊 Server → http://localhost:3000");
-	console.log("📖 Swagger → http://localhost:3000/swagger");
+	const PORT_BUN_SERVER = process.env.PORT_BUN_SERVER || 3000;
+	const PORT_WEB_SERVER = process.env.PORT_WEB_SERVER || 8080;
+	app.listen(PORT_BUN_SERVER);
+
+	console.log(`
+┌────────────────────────────────────────────────────┐
+│  MyHouse OS Server is running                      │
+│                                                    │
+│  🚀 Server:     http://192.168.4.1                 │
+│  🔗 API:        http://192.168.4.2:${PORT_BUN_SERVER}            │
+│  📖 Swagger:    http://192.168.4.2:${PORT_BUN_SERVER}/swagger    │
+│  🔌 WebSocket:  ws://192.168.4.2:${PORT_BUN_SERVER}/ws           │
+│  🌐 Web Server: http://192.168.4.3:${PORT_WEB_SERVER}            │
+└────────────────────────────────────────────────────┘
+	`);
 }
