@@ -1,96 +1,93 @@
 import { Elysia, t } from "elysia";
+import { prisma } from "../../../prisma/db";
+import { encrypt } from "../../utils/crypto";
 
 export const authRoutes = new Elysia().post(
 	"/",
-	async ({ headers, body, set }) => {
-		console.log("New authentication request received");
-
-		const authorization = headers.authorization;
-
-		if (!authorization) {
-			set.status = 401;
-			return {
-				error: "Authorization header missing",
-				status: "UNAUTHORIZED",
-			};
-		}
-
-		if (!authorization.includes(":")) {
-			set.status = 401;
-			return {
-				error: "Invalid authorization format",
-				status: "UNAUTHORIZED",
-			};
-		}
-
-		const [headerId, headerToken] = authorization.split(":");
-
-		if (!body) {
-			set.status = 400;
-			return {
-				error: "Body is required",
-				status: "BAD_REQUEST",
-			};
-		}
+	async ({ body, set }) => {
+		console.log("New client registration request from Master Server");
 
 		const { id, token } = body;
 
-		if (!id || id.trim() === "") {
-			set.status = 400;
-			return {
-				error: "Id is required",
-				status: "BAD_REQUEST",
-			};
-		}
+		try {
+			const encryptedToken = encrypt(token);
 
-		if (!token || token.trim() === "") {
-			set.status = 400;
-			return {
-				error: "Token is required",
-				status: "BAD_REQUEST",
-			};
-		}
+			const newClient = await prisma.client.upsert({
+				where: { ClientID: id },
+				update: { ClientToken: encryptedToken },
+				create: {
+					ClientID: id,
+					ClientToken: encryptedToken,
+				},
+			});
 
-		return {
-			status: "OK",
-		};
+			console.log(`New client registered/updated: ${id}`);
+			return {
+				status: "OK",
+				message: `Client ${id} registered successfully`,
+				client: newClient.ClientID,
+			};
+		} catch (error) {
+			console.error("Failed to register client:", error);
+			set.status = 500;
+			return { error: "Database error", status: "SERVER_ERROR" };
+		}
 	},
 	{
+		detail: {
+			summary: "Register a New Client",
+			description:
+				"Allows an authenticated Master Server (via Authorization header) to register or update credentials for a new ESP client in the database.",
+			tags: ["Authentication"],
+		},
 		headers: t.Object({
 			authorization: t.String({
-				description: "Format: id:token",
-				example: "espServer:XXXXYYYYZZZZ",
+				description: "Master Credentials. Format: 'MasterID:MasterToken'",
+				example: "MasterServer:SecretKey123",
 			}),
 		}),
-
 		body: t.Object({
 			id: t.String({
-				example: "espClient01",
+				description: "Unique Identifier for the new client (ESP)",
+				example: "LivingRoomESP",
 			}),
 			token: t.String({
-				example: "AAAABBBBCCCC",
+				description: "Secret access token for the new client",
+				example: "a1b2c3d4e5f6",
 			}),
 		}),
-
 		response: {
-			200: t.Object({
-				status: t.String({ example: "OK" }),
-			}),
-			400: t.Object({
-				error: t.String({ example: "Id is required" }),
-				status: t.String(),
-			}),
-			401: t.Object({
-				error: t.String({ example: "Authorization header missing" }),
-				status: t.String(),
-			}),
-		},
-
-		detail: {
-			summary: "Authentication endpoint",
-			description:
-				"This endpoint is used by an ESP server to authenticate and request the creation of a new ESP client account by sending the client's future identifiers in the request body.",
-			tags: ["Auth"],
+			200: t.Object(
+				{
+					status: t.String({ example: "OK", description: "Request was successful" }),
+					message: t.String({
+						example: "Client LivingRoomESP registered successfully",
+						description: "Success message",
+					}),
+					client: t.String({
+						example: "LivingRoomESP",
+						description: "Registered client identifier",
+					}),
+				},
+				{ description: "Client registered successfully" },
+			),
+			401: t.Object(
+				{
+					error: t.String({
+						example: "Invalid credentials",
+						description: "Error message indicating authentication failure",
+					}),
+					status: t.String({ example: "UNAUTHORIZED", description: "Authentication status" }),
+				},
+				{ description: "Master Server authentication failed" },
+			),
+			500: t.Object(
+				{
+					error: t.String({ description: "Error message indicating internal server error" }),
+					status: t.String({ description: "Error status" }),
+				},
+				{ description: "Internal Database Error" },
+			),
 		},
 	},
 );
