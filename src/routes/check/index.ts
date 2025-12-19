@@ -28,10 +28,11 @@ export const checkRoutes = new Elysia().get(
 				};
 			} catch (error) {
 				console.error("Failed to decrypt token for client:", id);
+				console.error(error);
+				set.status = 400;
 				return {
-					exists: true,
-					token: null,
 					error: "Token corruption",
+					status: "BAD_REQUEST",
 				};
 			}
 		}
