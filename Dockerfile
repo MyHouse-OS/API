@@ -21,6 +21,8 @@ FROM base AS prerelease
 COPY --from=install /temp/dev/node_modules node_modules
 COPY . .
 
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" bunx prisma generate
+
 # [optional] tests & build
 ENV NODE_ENV=production
 RUN bun test
