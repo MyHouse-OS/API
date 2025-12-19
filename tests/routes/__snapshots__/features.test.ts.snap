@@ -1,0 +1,47 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`Toggle & Temp Routes GET /temp returns current temp 1`] = `
+{
+  "status": "OK",
+  "temp": "20.5",
+}
+`;
+
+exports[`Toggle & Temp Routes POST /temp updates temp 1`] = `
+{
+  "message": "Temperature updated",
+  "status": "OK",
+  "temp": "25.0",
+}
+`;
+
+exports[`Toggle & Temp Routes GET /toggle/light returns state 1`] = `
+{
+  "light": false,
+  "status": "OK",
+}
+`;
+
+exports[`Toggle & Temp Routes POST /toggle/light toggles state 1`] = `
+{
+  "light": true,
+  "message": "Light toggled",
+  "status": "OK",
+}
+`;
+
+exports[`Toggle & Temp Routes POST /toggle/door toggles state 1`] = `
+{
+  "door": false,
+  "message": "Door toggled",
+  "status": "OK",
+}
+`;
+
+exports[`Toggle & Temp Routes POST /toggle/heat toggles state 1`] = `
+{
+  "heat": true,
+  "message": "Heat toggled",
+  "status": "OK",
+}
+`;
