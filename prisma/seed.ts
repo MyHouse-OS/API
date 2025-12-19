@@ -45,6 +45,17 @@ async function main() {
 	});
 	console.log("👤 Root User initialized (user: root)");
 
+	const passwordHashForDashboard = encrypt("root");
+	await prisma.client.upsert({
+		where: { ClientID: "root" },
+		update: { ClientToken: passwordHashForDashboard },
+		create: {
+			ClientID: "root",
+			ClientToken: passwordHashForDashboard,
+		},
+	});
+	console.log("👤 Root Client initialized (client: root)");
+
 	console.log("✅ Seeding completed.");
 }
 
