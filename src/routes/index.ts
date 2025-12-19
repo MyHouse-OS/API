@@ -9,8 +9,8 @@ import { wsRoutes } from "./ws";
 
 export const routes = new Elysia()
 	.group("/status", { detail: { tags: ["System"] } }, (app) => app.use(statusRoutes))
-	.use(wsRoutes) // WebSocket route (Public for now)
-	.use(authMiddleware) // Protects routes below
+	.use(wsRoutes)
+	.use(authMiddleware)
 	.group("/check", { detail: { tags: ["Check"] } }, (app) => app.use(checkRoutes))
 	.group("/temp", { detail: { tags: ["Temperature"] } }, (app) => app.use(tempRoutes))
 	.group("/toggle", { detail: { tags: ["Toggle"] } }, (app) => app.use(toggleRoutes))
