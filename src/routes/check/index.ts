@@ -62,23 +62,35 @@ export const checkRoutes = new Elysia().get(
 		}),
 		response: {
 			200: t.Object({
-				exists: t.Boolean({ description: "True if the client exists" }),
-				token: t.Optional(t.String({ description: "The client's secret token (only if exists)" })),
+				exists: t.Boolean({ description: "True if the client exists", example: true }),
+				token: t.Optional(
+					t.String({
+						description: "The client's secret token (only if exists)",
+						example: "encryped-token-string",
+					}),
+				),
 			}),
 			400: t.Object(
 				{
-					error: t.String(),
-					status: t.String(),
+					error: t.String({
+						description: "Error description",
+						example: "Missing id query parameter",
+					}),
+					status: t.String({ description: "Error status code", example: "BAD_REQUEST" }),
 				},
-				{ description: "Missing query parameter" },
+				{ description: "Bad Request" },
 			),
 			401: t.Object(
 				{
-					error: t.String(),
-					status: t.String(),
+					error: t.String({ description: "Error description", example: "Invalid credentials" }),
+					status: t.String({ description: "Error status code", example: "UNAUTHORIZED" }),
 				},
 				{ description: "Unauthorized" },
 			),
+			500: t.Object({
+				error: t.String({ description: "Error description", example: "Internal Server Error" }),
+				status: t.String({ description: "Error status code", example: "SERVER_ERROR" }),
+			}),
 		},
 	},
 );

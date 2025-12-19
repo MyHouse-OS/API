@@ -71,20 +71,24 @@ export const authRoutes = new Elysia().post(
 				},
 				{ description: "Client registered successfully" },
 			),
+			400: t.Object(
+				{
+					error: t.String({ description: "Error description", example: "Validation Error" }),
+					status: t.String({ description: "Error status code", example: "BAD_REQUEST" }),
+				},
+				{ description: "Validation Error" },
+			),
 			401: t.Object(
 				{
-					error: t.String({
-						example: "Invalid credentials",
-						description: "Error message indicating authentication failure",
-					}),
-					status: t.String({ example: "UNAUTHORIZED", description: "Authentication status" }),
+					error: t.String({ description: "Error description", example: "Invalid credentials" }),
+					status: t.String({ description: "Error status code", example: "UNAUTHORIZED" }),
 				},
 				{ description: "Master Server authentication failed" },
 			),
 			500: t.Object(
 				{
-					error: t.String({ description: "Error message indicating internal server error" }),
-					status: t.String({ description: "Error status" }),
+					error: t.String({ description: "Error description", example: "Database error" }),
+					status: t.String({ description: "Error status code", example: "SERVER_ERROR" }),
 				},
 				{ description: "Internal Database Error" },
 			),

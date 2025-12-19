@@ -3,7 +3,7 @@ import { prisma } from "../../../prisma/db";
 
 export const statusRoutes = new Elysia().get(
 	"/",
-	async () => {
+	async ({ set }) => {
 		try {
 			await prisma.$queryRaw`SELECT 1`;
 			return {
@@ -12,6 +12,7 @@ export const statusRoutes = new Elysia().get(
 				uptime: process.uptime(),
 			};
 		} catch (error) {
+			set.status = 500;
 			return {
 				status: "ERROR",
 				database: "Disconnected",
@@ -28,14 +29,17 @@ export const statusRoutes = new Elysia().get(
 		},
 		response: {
 			200: t.Object({
-				status: t.String({ example: "OK", description: "Global API status" }),
-				database: t.String({ example: "Connected", description: "Database connection status" }),
-				uptime: t.Number({ example: 3600, description: "Server uptime in seconds" }),
+				status: t.String({ example: "OK", description: "Global API status." }),
+				database: t.String({ example: "Connected", description: "Database connection status." }),
+				uptime: t.Number({ example: 3600, description: "Server uptime in seconds." }),
 			}),
 			500: t.Object({
-				status: t.String({ example: "ERROR", description: "Global API status" }),
-				database: t.String({ example: "Disconnected", description: "Database connection status" }),
-				error: t.String({ example: "Database connection failed", description: "Error message" }),
+				status: t.String({ example: "ERROR", description: "Global API status." }),
+				database: t.String({ example: "Disconnected", description: "Database connection status." }),
+				error: t.String({
+					example: "Database connection failed.",
+					description: "Detailed error message.",
+				}),
 			}),
 		},
 	},
