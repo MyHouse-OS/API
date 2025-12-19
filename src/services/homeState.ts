@@ -4,7 +4,6 @@ import { EVENTS, eventBus } from "../utils/eventBus";
 
 const STATE_ID = 1;
 
-// Helper to ensure the state exists
 const ensureStateExists = async () => {
 	return await prisma.homeState.upsert({
 		where: { id: STATE_ID },
@@ -25,7 +24,6 @@ const logHistory = async (type: EventType, value: string) => {
 			value,
 		},
 	});
-	// Émission de l'événement pour les WebSockets
 	eventBus.emit(EVENTS.STATE_CHANGE, { type, value });
 };
 
