@@ -31,7 +31,7 @@
 				"useBlockStatements": "off"
 			},
 			"suspicious": {
-				"noExplicitAny": "warn",
+				"noExplicitAny": "error",
 				"noConsole": "off"
 			}
 		}
