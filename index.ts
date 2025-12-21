@@ -7,7 +7,13 @@ import { initRuleEngine } from "./src/rules/engine";
 import { EVENTS, eventBus } from "./src/utils/eventBus";
 
 export const app = new Elysia()
-	.use(cors())
+	.use(
+		cors({
+			origin: true,
+			methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+			allowedHeaders: ["Content-Type", "Authorization"],
+		}),
+	)
 	.use(
 		swagger({
 			documentation: {
