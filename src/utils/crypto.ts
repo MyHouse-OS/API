@@ -1,7 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from "node:crypto";
 
 const PASSWORD = process.env.ENCRYPTION_KEY || "MySuperSecretPasswordFixed123!";
-const SALT = "MyFixedSalt";
+const SALT = process.env.ENCRYPTION_SALT || "MyFixedSalt";
 const KEY = scryptSync(PASSWORD, SALT, 32);
 const IV_LENGTH = 16;
 
