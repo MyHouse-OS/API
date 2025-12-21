@@ -10,25 +10,38 @@ export const wsRoutes = new Elysia().ws("/ws", {
 		tags: ["WebSocket"],
 	},
 	open: async (ws) => {
-		const id = ws.id;
-		console.log(`[WS] New Connection Established | ID: ${id} | Remote: ${ws.remoteAddress}`);
+		try {
+			const id = ws.id;
+			console.log(`[WS] New Connection Established | ID: ${id} | Remote: ${ws.remoteAddress}`);
 
-		ws.subscribe("home-updates");
-		console.log(`[WS] Client ${id} subscribed to 'home-updates'`);
+			ws.subscribe("home-updates");
+			console.log(`[WS] ✅ Client subscribed to 'home-updates' | ID: ${id}`);
 
-		const state = await HomeStateService.get();
-		ws.send({
-			type: "INIT",
-			data: state,
-		});
+			const state = await HomeStateService.get();
 
-		eventBus.emit(EVENTS.NEW_CONNECTION);
+			const payload = JSON.stringify({
+				type: "INIT",
+				data: state,
+			});
+
+			ws.send(payload);
+			console.log("[WS] 📤 INIT sent to client");
+
+			eventBus.emit(EVENTS.NEW_CONNECTION);
+		} catch (error) {
+			console.error("[WS] ❌ Error in open handler:", error);
+			ws.close();
+		}
 	},
-	message: (ws, message) => {
-		console.log(`[WS] Received message from ${ws.id}:`, message);
+	message: (message) => {
+		console.log("[WS] 📩 Message received:", message);
 	},
-	close: (ws) => {
-		console.log(`[WS] Connection Closed | ID: ${ws.id}`);
-		ws.unsubscribe("home-updates");
+	close: (ws, code, message) => {
+		console.log(`[WS] 🚪 Connection Closed | Code: ${code} | Reason: ${message}`);
+		try {
+			ws.unsubscribe("home-updates");
+		} catch (_e) {
+			console.error("[WS] ❌ Error during unsubscribe on close");
+		}
 	},
 });
