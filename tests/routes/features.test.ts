@@ -14,6 +14,8 @@ const encryptedUserToken = encrypt("Token");
 const mockPrisma = {
 	client: {
 		findUnique: mock(() => Promise.resolve({ ClientID: "User", ClientToken: encryptedUserToken })),
+		findFirst: mock(() => Promise.resolve(null)),
+		upsert: mock(() => Promise.resolve({})),
 	},
 	homeState: {
 		upsert: mock((args) => {
@@ -25,10 +27,13 @@ const mockPrisma = {
 			return Promise.resolve(updated);
 		}),
 		findUnique: mock(() => Promise.resolve(mockState)),
+		findFirst: mock(() => Promise.resolve(mockState)),
 	},
 	history: {
 		create: mock(() => Promise.resolve({ id: 1 })),
+		findMany: mock(() => Promise.resolve([])),
 	},
+	$queryRaw: mock(() => Promise.resolve([1])),
 };
 
 mock.module("../../prisma/db", () => ({
@@ -48,6 +53,11 @@ describe("Toggle & Temp Routes", async () => {
 			heat: false,
 		});
 
+		mockPrisma.client.findUnique = mock(() =>
+			Promise.resolve({ ClientID: "User", ClientToken: encryptedUserToken }),
+		);
+		mockPrisma.client.findFirst = mock(() => Promise.resolve(null));
+		mockPrisma.client.upsert = mock(() => Promise.resolve({}));
 		mockPrisma.homeState.upsert = mock((args) => {
 			const updated = { ...mockState, ...(args.update || {}) };
 			return Promise.resolve(updated);
@@ -57,7 +67,10 @@ describe("Toggle & Temp Routes", async () => {
 			return Promise.resolve(updated);
 		});
 		mockPrisma.homeState.findUnique = mock(() => Promise.resolve({ ...mockState }));
+		mockPrisma.homeState.findFirst = mock(() => Promise.resolve({ ...mockState }));
 		mockPrisma.history.create = mock(() => Promise.resolve({ id: 1 }));
+		mockPrisma.history.findMany = mock(() => Promise.resolve([]));
+		mockPrisma.$queryRaw = mock(() => Promise.resolve([1]));
 	});
 
 	it("GET /temp returns current temp", async () => {
