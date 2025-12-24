@@ -3,9 +3,9 @@ import { EVENTS, eventBus } from "../../src/utils/eventBus";
 
 const mockState = {
 	id: 1,
-	temperature: "20.5",
+	temperature: "20",
 	light: false,
-	door: true,
+	door: false,
 	heat: false,
 };
 
@@ -46,9 +46,9 @@ describe("WebSocket Route", async () => {
 	beforeEach(() => {
 		Object.assign(mockState, {
 			id: 1,
-			temperature: "20.5",
+			temperature: "20",
 			light: false,
-			door: true,
+			door: false,
 			heat: false,
 		});
 

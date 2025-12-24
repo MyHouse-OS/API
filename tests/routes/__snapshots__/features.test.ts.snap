@@ -3,7 +3,7 @@
 exports[`Toggle & Temp Routes GET /temp returns current temp 1`] = `
 {
   "status": "OK",
-  "temp": "20.5",
+  "temp": "20",
 }
 `;
 
@@ -32,7 +32,7 @@ exports[`Toggle & Temp Routes POST /toggle/light toggles state 1`] = `
 
 exports[`Toggle & Temp Routes POST /toggle/door toggles state 1`] = `
 {
-  "door": false,
+  "door": true,
   "message": "Door toggled",
   "status": "OK",
 }
@@ -48,7 +48,7 @@ exports[`Toggle & Temp Routes POST /toggle/heat toggles state 1`] = `
 
 exports[`Toggle & Temp Routes GET /toggle/door returns door status 1`] = `
 {
-  "door": true,
+  "door": false,
   "status": "OK",
 }
 `;

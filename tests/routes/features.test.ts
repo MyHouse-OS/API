@@ -3,9 +3,9 @@ import { encrypt } from "../../src/utils/crypto";
 
 const mockState = {
 	id: 1,
-	temperature: "20.5",
+	temperature: "20",
 	light: false,
-	door: true,
+	door: false,
 	heat: false,
 };
 
@@ -47,9 +47,9 @@ describe("Toggle & Temp Routes", async () => {
 	beforeEach(() => {
 		Object.assign(mockState, {
 			id: 1,
-			temperature: "20.5",
+			temperature: "20",
 			light: false,
-			door: true,
+			door: false,
 			heat: false,
 		});
 
@@ -79,7 +79,7 @@ describe("Toggle & Temp Routes", async () => {
 		);
 		expect(response.status).toBe(200);
 		const json = await response.json();
-		expect(json.temp).toBe("20.5");
+		expect(json.temp).toBe("20");
 		expect(json).toMatchSnapshot();
 	});
 
