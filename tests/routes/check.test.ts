@@ -1,23 +1,18 @@
 import { describe, expect, it, mock } from "bun:test";
 import { encrypt } from "../../src/utils/crypto";
 
-// Generate a valid encrypted token for "ExistingToken"
 const encryptedExistingToken = encrypt("ExistingToken");
-// Generate a valid encrypted token for "Secret" (Master)
 const encryptedMasterToken = encrypt("Secret");
 
 const mockPrisma = {
 	client: {
 		findFirst: mock(() =>
 			Promise.resolve({ ClientID: "Master", ClientToken: encryptedMasterToken }),
-		), // For middleware
+		),
 		findUnique: mock((args) => {
 			if (args.where.ClientID === "ExistingClient") {
 				return Promise.resolve({ ClientID: "ExistingClient", ClientToken: encryptedExistingToken });
 			}
-			// Middleware check inside route check? No, route check uses findUnique for target.
-			// Middleware uses findUnique (changed in step 3).
-			// Wait, authMiddleware uses findUnique by ID only now!
 			if (args.where.ClientID === "Master") {
 				return Promise.resolve({ ClientID: "Master", ClientToken: encryptedMasterToken });
 			}

@@ -13,13 +13,10 @@ const encryptedUserToken = encrypt("Token");
 
 const mockPrisma = {
 	client: {
-		// Middleware uses findUnique now
 		findUnique: mock(() => Promise.resolve({ ClientID: "User", ClientToken: encryptedUserToken })),
 	},
 	homeState: {
 		upsert: mock((args) => {
-			// If we have update data, merge it. Otherwise return default.
-			// args.update contains the updates if record exists (it does in mock)
 			const updated = { ...mockState, ...(args.update || {}) };
 			return Promise.resolve(updated);
 		}),
@@ -42,7 +39,6 @@ describe("Toggle & Temp Routes", async () => {
 	const { app } = await import("../../index");
 	const authHeader = { Authorization: "User:Token" };
 
-	// TEMP
 	it("GET /temp returns current temp", async () => {
 		const response = await app.handle(
 			new Request("http://localhost/temp", { headers: authHeader }),
@@ -67,7 +63,6 @@ describe("Toggle & Temp Routes", async () => {
 		expect(json).toMatchSnapshot();
 	});
 
-	// LIGHT
 	it("GET /toggle/light returns state", async () => {
 		const response = await app.handle(
 			new Request("http://localhost/toggle/light", { headers: authHeader }),
@@ -87,7 +82,6 @@ describe("Toggle & Temp Routes", async () => {
 		expect(await response.json()).toMatchSnapshot();
 	});
 
-	// DOOR
 	it("POST /toggle/door toggles state", async () => {
 		const response = await app.handle(
 			new Request("http://localhost/toggle/door", {
@@ -99,7 +93,6 @@ describe("Toggle & Temp Routes", async () => {
 		expect(await response.json()).toMatchSnapshot();
 	});
 
-	// HEAT
 	it("POST /toggle/heat toggles state", async () => {
 		const response = await app.handle(
 			new Request("http://localhost/toggle/heat", {
@@ -109,5 +102,61 @@ describe("Toggle & Temp Routes", async () => {
 		);
 		expect(response.status).toBe(200);
 		expect(await response.json()).toMatchSnapshot();
+	});
+
+	it("GET /toggle/door returns door status", async () => {
+		const response = await app.handle(
+			new Request("http://localhost/toggle/door", { headers: authHeader }),
+		);
+		expect(response.status).toBe(200);
+		const json = await response.json();
+		expect(json).toHaveProperty("door");
+		expect(json).toMatchSnapshot();
+	});
+
+	it("GET /toggle/heat returns heat status", async () => {
+		const response = await app.handle(
+			new Request("http://localhost/toggle/heat", { headers: authHeader }),
+		);
+		expect(response.status).toBe(200);
+		const json = await response.json();
+		expect(json).toHaveProperty("heat");
+		expect(json).toMatchSnapshot();
+	});
+
+	it("GET /toggle/door handles Prisma errors (500)", async () => {
+		mockPrisma.homeState.upsert = mock(() => Promise.reject(new Error("Database error")));
+
+		const response = await app.handle(
+			new Request("http://localhost/toggle/door", { headers: authHeader }),
+		);
+		expect(response.status).toBe(500);
+		const json = await response.json();
+		expect(json.status).toBe("SERVER_ERROR");
+
+		mockPrisma.homeState.upsert = mock((args) => {
+			const updated = { ...mockState, ...(args.update || {}) };
+			return Promise.resolve(updated);
+		});
+	});
+
+	it("POST /temp handles Prisma errors (500)", async () => {
+		mockPrisma.homeState.upsert = mock(() => Promise.reject(new Error("Database error")));
+
+		const response = await app.handle(
+			new Request("http://localhost/temp", {
+				method: "POST",
+				headers: { ...authHeader, "Content-Type": "application/json" },
+				body: JSON.stringify({ temp: "25.0" }),
+			}),
+		);
+		expect(response.status).toBe(500);
+		const json = await response.json();
+		expect(json.status).toBe("SERVER_ERROR");
+
+		mockPrisma.homeState.upsert = mock((args) => {
+			const updated = { ...mockState, ...(args.update || {}) };
+			return Promise.resolve(updated);
+		});
 	});
 });

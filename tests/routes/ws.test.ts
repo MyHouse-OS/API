@@ -1,7 +1,6 @@
 import { afterAll, describe, expect, it, mock } from "bun:test";
 import { EVENTS, eventBus } from "../../src/utils/eventBus";
 
-// Mock Prisma
 const mockState = {
 	id: 1,
 	temperature: "20.5",
@@ -26,10 +25,8 @@ mock.module("../../prisma/db", () => ({
 }));
 
 describe("WebSocket Route", async () => {
-	// Import dynamique après le mock
 	const { app } = await import("../../index");
 
-	// On démarre le serveur pour de vrai sur un port éphémère
 	app.listen(0);
 	const server = app.server;
 
@@ -64,7 +61,6 @@ describe("WebSocket Route", async () => {
 		const ws = new WebSocket(wsUrl);
 
 		try {
-			// On ignore le premier message (INIT)
 			let _initReceived = false;
 
 			const updatePromise = new Promise((resolve) => {
@@ -83,7 +79,6 @@ describe("WebSocket Route", async () => {
 				ws.onopen = () => resolve();
 			});
 
-			// Simuler un événement interne
 			eventBus.emit(EVENTS.STATE_CHANGE, { type: "TEMP", value: "25.0" });
 
 			const update = (await updatePromise) as { type: string; data: Record<string, unknown> };

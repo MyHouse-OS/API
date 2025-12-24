@@ -3,10 +3,8 @@ import { encrypt } from "../../src/utils/crypto";
 
 const encryptedMasterToken = encrypt("Secret");
 
-// Mock Prisma
 const mockPrisma = {
 	client: {
-		// Middleware uses findUnique
 		findUnique: mock((args) => {
 			if (args?.where?.ClientID === "Master") {
 				return Promise.resolve({ ClientID: "Master", ClientToken: encryptedMasterToken });
@@ -33,9 +31,7 @@ describe("Auth Route", async () => {
 				headers: { "Content-Type": "application/json" },
 			}),
 		);
-		// Expect 401 because no auth header
 		expect(response.status).toBe(401);
-		// Elysia default error handler returns text for thrown Errors
 		expect(await response.text()).toBe("Authorization header missing");
 	});
 

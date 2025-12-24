@@ -1,6 +1,5 @@
 import { describe, expect, it, mock } from "bun:test";
 
-// Mock Prisma BEFORE importing app
 mock.module("../../prisma/db", () => ({
 	prisma: {
 		$queryRaw: mock(() => Promise.resolve([1])),
@@ -13,7 +12,6 @@ describe("Public Routes", async () => {
 	it("GET / returns banner", async () => {
 		const response = await app.handle(new Request("http://localhost/"));
 		expect(response.status).toBe(200);
-		// Snapshot handles the complex ASCII art verification
 		expect(response).toMatchSnapshot();
 	});
 
