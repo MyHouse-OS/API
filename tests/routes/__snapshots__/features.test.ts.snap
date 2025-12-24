@@ -45,3 +45,17 @@ exports[`Toggle & Temp Routes POST /toggle/heat toggles state 1`] = `
   "status": "OK",
 }
 `;
+
+exports[`Toggle & Temp Routes GET /toggle/door returns door status 1`] = `
+{
+  "door": true,
+  "status": "OK",
+}
+`;
+
+exports[`Toggle & Temp Routes GET /toggle/heat returns heat status 1`] = `
+{
+  "heat": false,
+  "status": "OK",
+}
+`;

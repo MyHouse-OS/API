@@ -1,0 +1,145 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`History Route GET /history with default limit (50) 1`] = `
+{
+  "count": 5,
+  "data": [
+    {
+      "createdAt": "2025-12-24T14:20:45.089Z",
+      "id": 1,
+      "type": "TEMPERATURE",
+      "value": "20.5",
+    },
+    {
+      "createdAt": "2025-12-24T14:20:44.089Z",
+      "id": 2,
+      "type": "LIGHT",
+      "value": "true",
+    },
+    {
+      "createdAt": "2025-12-24T14:20:43.089Z",
+      "id": 3,
+      "type": "TEMPERATURE",
+      "value": "20.5",
+    },
+    {
+      "createdAt": "2025-12-24T14:20:42.089Z",
+      "id": 4,
+      "type": "LIGHT",
+      "value": "true",
+    },
+    {
+      "createdAt": "2025-12-24T14:20:41.089Z",
+      "id": 5,
+      "type": "TEMPERATURE",
+      "value": "20.5",
+    },
+  ],
+  "status": "OK",
+}
+`;
+
+exports[`History Route GET /history with custom limit 1`] = `
+{
+  "count": 3,
+  "data": [
+    {
+      "createdAt": "2025-12-24T14:20:45.090Z",
+      "id": 1,
+      "type": "TEMPERATURE",
+      "value": "20.5",
+    },
+    {
+      "createdAt": "2025-12-24T14:20:44.090Z",
+      "id": 2,
+      "type": "LIGHT",
+      "value": "true",
+    },
+    {
+      "createdAt": "2025-12-24T14:20:43.090Z",
+      "id": 3,
+      "type": "TEMPERATURE",
+      "value": "20.5",
+    },
+  ],
+  "status": "OK",
+}
+`;
+
+exports[`History Route GET /history returns data ordered by date DESC 1`] = `
+{
+  "count": 5,
+  "data": [
+    {
+      "createdAt": "2025-12-24T14:20:45.090Z",
+      "id": 1,
+      "type": "TEMPERATURE",
+      "value": "20.5",
+    },
+    {
+      "createdAt": "2025-12-24T14:20:44.090Z",
+      "id": 2,
+      "type": "LIGHT",
+      "value": "true",
+    },
+    {
+      "createdAt": "2025-12-24T14:20:43.090Z",
+      "id": 3,
+      "type": "TEMPERATURE",
+      "value": "20.5",
+    },
+    {
+      "createdAt": "2025-12-24T14:20:42.090Z",
+      "id": 4,
+      "type": "LIGHT",
+      "value": "true",
+    },
+    {
+      "createdAt": "2025-12-24T14:20:41.090Z",
+      "id": 5,
+      "type": "TEMPERATURE",
+      "value": "20.5",
+    },
+  ],
+  "status": "OK",
+}
+`;
+
+exports[`History Route GET /history with invalid limit (NaN) uses default 1`] = `
+{
+  "count": 5,
+  "data": [
+    {
+      "createdAt": "2025-12-24T14:20:45.091Z",
+      "id": 1,
+      "type": "TEMPERATURE",
+      "value": "20.5",
+    },
+    {
+      "createdAt": "2025-12-24T14:20:44.091Z",
+      "id": 2,
+      "type": "LIGHT",
+      "value": "true",
+    },
+    {
+      "createdAt": "2025-12-24T14:20:43.091Z",
+      "id": 3,
+      "type": "TEMPERATURE",
+      "value": "20.5",
+    },
+    {
+      "createdAt": "2025-12-24T14:20:42.091Z",
+      "id": 4,
+      "type": "LIGHT",
+      "value": "true",
+    },
+    {
+      "createdAt": "2025-12-24T14:20:41.091Z",
+      "id": 5,
+      "type": "TEMPERATURE",
+      "value": "20.5",
+    },
+  ],
+  "status": "OK",
+}
+`;
