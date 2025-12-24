@@ -1,4 +1,4 @@
-import { describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { encrypt } from "../../src/utils/crypto";
 
 const encryptedMasterToken = encrypt("Secret");
@@ -23,6 +23,18 @@ mock.module("../../prisma/db", () => ({
 
 describe("Auth Route", async () => {
 	const { app } = await import("../../index");
+
+	beforeEach(() => {
+		mockPrisma.client.findUnique = mock((args) => {
+			if (args?.where?.ClientID === "Master") {
+				return Promise.resolve({ ClientID: "Master", ClientToken: encryptedMasterToken });
+			}
+			return Promise.resolve(null);
+		});
+		mockPrisma.client.upsert = mock((args) =>
+			Promise.resolve({ ClientID: args.create.ClientID, ClientToken: args.create.ClientToken }),
+		);
+	});
 	it("POST /auth requires master authentication", async () => {
 		const response = await app.handle(
 			new Request("http://localhost/auth", {

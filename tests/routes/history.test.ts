@@ -1,4 +1,4 @@
-import { describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { encrypt } from "../../src/utils/crypto";
 
 const encryptedUserToken = encrypt("Token");
@@ -28,6 +28,22 @@ mock.module("../../prisma/db", () => ({
 describe("History Route", async () => {
 	const { app } = await import("../../index");
 	const authHeader = { Authorization: "User:Token" };
+
+	beforeEach(() => {
+		mockPrisma.client.findUnique = mock(() =>
+			Promise.resolve({ ClientID: "User", ClientToken: encryptedUserToken }),
+		);
+		mockPrisma.history.findMany = mock((args) => {
+			const limit = args?.take || 50;
+			const records = Array.from({ length: Math.min(limit, 5) }, (_, i) => ({
+				id: i + 1,
+				type: i % 2 === 0 ? "TEMPERATURE" : "LIGHT",
+				value: i % 2 === 0 ? "20.5" : "true",
+				createdAt: new Date(Date.now() - i * 1000),
+			}));
+			return Promise.resolve(records);
+		});
+	});
 
 	it("GET /history with default limit (50)", async () => {
 		const response = await app.handle(

@@ -1,4 +1,4 @@
-import { describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { encrypt } from "../../src/utils/crypto";
 
 const encryptedExistingToken = encrypt("ExistingToken");
@@ -27,6 +27,21 @@ mock.module("../../prisma/db", () => ({
 
 describe("Check Route", async () => {
 	const { app } = await import("../../index");
+
+	beforeEach(() => {
+		mockPrisma.client.findFirst = mock(() =>
+			Promise.resolve({ ClientID: "Master", ClientToken: encryptedMasterToken }),
+		);
+		mockPrisma.client.findUnique = mock((args) => {
+			if (args.where.ClientID === "ExistingClient") {
+				return Promise.resolve({ ClientID: "ExistingClient", ClientToken: encryptedExistingToken });
+			}
+			if (args.where.ClientID === "Master") {
+				return Promise.resolve({ ClientID: "Master", ClientToken: encryptedMasterToken });
+			}
+			return Promise.resolve(null);
+		});
+	});
 	it("GET /check returns exists:true for existing client", async () => {
 		const response = await app.handle(
 			new Request("http://localhost/check?id=ExistingClient", {
