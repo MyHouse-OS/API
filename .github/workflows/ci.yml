@@ -50,4 +50,4 @@ jobs:
         run: bun install
 
       - name: Run Biome check
-        run: bunx --bun biome check .
+        run: bunx --bun biome check --error-on-warnings src tests
