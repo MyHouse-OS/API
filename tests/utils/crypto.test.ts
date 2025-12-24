@@ -30,8 +30,6 @@ describe("Crypto Utils", () => {
 
 	it("should throw error when decrypting invalid format", () => {
 		const _invalidInput = "not-a-hex-iv:not-hex-data";
-		// On s'attend à ce que crypto.createDecipheriv ou d'autres fonctions lancent une erreur
-		// ou que le résultat soit incohérent.
 		expect(() => decrypt("invaliddata")).toThrow();
 	});
 });
