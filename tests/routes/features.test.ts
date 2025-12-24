@@ -1,4 +1,4 @@
-import { describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { encrypt } from "../../src/utils/crypto";
 
 const mockState = {
@@ -38,6 +38,27 @@ mock.module("../../prisma/db", () => ({
 describe("Toggle & Temp Routes", async () => {
 	const { app } = await import("../../index");
 	const authHeader = { Authorization: "User:Token" };
+
+	beforeEach(() => {
+		Object.assign(mockState, {
+			id: 1,
+			temperature: "20.5",
+			light: false,
+			door: true,
+			heat: false,
+		});
+
+		mockPrisma.homeState.upsert = mock((args) => {
+			const updated = { ...mockState, ...(args.update || {}) };
+			return Promise.resolve(updated);
+		});
+		mockPrisma.homeState.update = mock((args) => {
+			const updated = { ...mockState, ...(args.data || {}) };
+			return Promise.resolve(updated);
+		});
+		mockPrisma.homeState.findUnique = mock(() => Promise.resolve({ ...mockState }));
+		mockPrisma.history.create = mock(() => Promise.resolve({ id: 1 }));
+	});
 
 	it("GET /temp returns current temp", async () => {
 		const response = await app.handle(

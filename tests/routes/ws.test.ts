@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, it, mock } from "bun:test";
+import { afterAll, beforeEach, describe, expect, it, mock } from "bun:test";
 import { EVENTS, eventBus } from "../../src/utils/eventBus";
 
 const mockState = {
@@ -11,9 +11,9 @@ const mockState = {
 
 const mockPrisma = {
 	homeState: {
-		upsert: mock(() => Promise.resolve(mockState)),
-		update: mock(() => Promise.resolve(mockState)),
-		findFirst: mock(() => Promise.resolve(mockState)),
+		upsert: mock(() => Promise.resolve({ ...mockState })),
+		update: mock(() => Promise.resolve({ ...mockState })),
+		findFirst: mock(() => Promise.resolve({ ...mockState })),
 	},
 	history: {
 		create: mock(() => Promise.resolve({})),
@@ -34,6 +34,21 @@ describe("WebSocket Route", async () => {
 
 	const port = server.port;
 	const wsUrl = `ws://localhost:${port}/ws`;
+
+	beforeEach(() => {
+		Object.assign(mockState, {
+			id: 1,
+			temperature: "20.5",
+			light: false,
+			door: true,
+			heat: false,
+		});
+
+		mockPrisma.homeState.upsert = mock(() => Promise.resolve({ ...mockState }));
+		mockPrisma.homeState.update = mock(() => Promise.resolve({ ...mockState }));
+		mockPrisma.homeState.findFirst = mock(() => Promise.resolve({ ...mockState }));
+		mockPrisma.history.create = mock(() => Promise.resolve({}));
+	});
 
 	afterAll(() => {
 		app.stop();
