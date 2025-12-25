@@ -1,5 +1,6 @@
-import { afterAll, beforeEach, describe, expect, it, mock } from "bun:test";
+import { afterAll, beforeEach, describe, expect, it } from "bun:test";
 import { EVENTS, eventBus } from "../../src/utils/eventBus";
+import { mockPrisma } from "../mocks/prisma";
 
 const mockState = {
 	id: 1,
@@ -8,29 +9,6 @@ const mockState = {
 	door: false,
 	heat: false,
 };
-
-const mockPrisma = {
-	client: {
-		findUnique: mock(() => Promise.resolve(null)),
-		findFirst: mock(() => Promise.resolve(null)),
-		upsert: mock(() => Promise.resolve({})),
-	},
-	homeState: {
-		upsert: mock(() => Promise.resolve({ ...mockState })),
-		update: mock(() => Promise.resolve({ ...mockState })),
-		findFirst: mock(() => Promise.resolve({ ...mockState })),
-		findUnique: mock(() => Promise.resolve({ ...mockState })),
-	},
-	history: {
-		create: mock(() => Promise.resolve({})),
-		findMany: mock(() => Promise.resolve([])),
-	},
-	$queryRaw: mock(() => Promise.resolve([1])),
-};
-
-mock.module("../../prisma/db", () => ({
-	prisma: mockPrisma,
-}));
 
 describe("WebSocket Route", async () => {
 	const { app } = await import("../../index");
@@ -52,16 +30,20 @@ describe("WebSocket Route", async () => {
 			heat: false,
 		});
 
-		mockPrisma.client.findUnique = mock(() => Promise.resolve(null));
-		mockPrisma.client.findFirst = mock(() => Promise.resolve(null));
-		mockPrisma.client.upsert = mock(() => Promise.resolve({}));
-		mockPrisma.homeState.upsert = mock(() => Promise.resolve({ ...mockState }));
-		mockPrisma.homeState.update = mock(() => Promise.resolve({ ...mockState }));
-		mockPrisma.homeState.findFirst = mock(() => Promise.resolve({ ...mockState }));
-		mockPrisma.homeState.findUnique = mock(() => Promise.resolve({ ...mockState }));
-		mockPrisma.history.create = mock(() => Promise.resolve({}));
-		mockPrisma.history.findMany = mock(() => Promise.resolve([]));
-		mockPrisma.$queryRaw = mock(() => Promise.resolve([1]));
+		// Réinitialiser les mocks pour ce test
+		mockPrisma.client.findUnique.mockImplementation(() => Promise.resolve(null));
+		mockPrisma.client.findFirst.mockImplementation(() => Promise.resolve(null));
+		mockPrisma.client.upsert.mockImplementation(() => Promise.resolve({}));
+
+		mockPrisma.homeState.upsert.mockImplementation(() => Promise.resolve({ ...mockState }));
+		mockPrisma.homeState.update.mockImplementation(() => Promise.resolve({ ...mockState }));
+		mockPrisma.homeState.findFirst.mockImplementation(() => Promise.resolve({ ...mockState }));
+		mockPrisma.homeState.findUnique.mockImplementation(() => Promise.resolve({ ...mockState }));
+
+		mockPrisma.history.create.mockImplementation(() => Promise.resolve({}));
+		mockPrisma.history.findMany.mockImplementation(() => Promise.resolve([]));
+
+		mockPrisma.$queryRaw.mockImplementation(() => Promise.resolve([1]));
 	});
 
 	afterAll(() => {

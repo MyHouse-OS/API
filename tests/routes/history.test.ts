@@ -1,39 +1,18 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it } from "bun:test";
 import { encrypt } from "../../src/utils/crypto";
+import { mockPrisma } from "../mocks/prisma";
 
 const encryptedUserToken = encrypt("Token");
-
-const mockPrisma = {
-	client: {
-		findUnique: mock(() => Promise.resolve({ ClientID: "User", ClientToken: encryptedUserToken })),
-	},
-	history: {
-		findMany: mock((args) => {
-			const limit = args?.take || 50;
-			const records = Array.from({ length: Math.min(limit, 5) }, (_, i) => ({
-				id: i + 1,
-				type: i % 2 === 0 ? "TEMPERATURE" : "LIGHT",
-				value: i % 2 === 0 ? "20.5" : "true",
-				createdAt: new Date(Date.now() - i * 1000),
-			}));
-			return Promise.resolve(records);
-		}),
-	},
-};
-
-mock.module("../../prisma/db", () => ({
-	prisma: mockPrisma,
-}));
 
 describe("History Route", async () => {
 	const { app } = await import("../../index");
 	const authHeader = { Authorization: "User:Token" };
 
 	beforeEach(() => {
-		mockPrisma.client.findUnique = mock(() =>
+		mockPrisma.client.findUnique.mockImplementation(() =>
 			Promise.resolve({ ClientID: "User", ClientToken: encryptedUserToken }),
 		);
-		mockPrisma.history.findMany = mock((args) => {
+		mockPrisma.history.findMany.mockImplementation((args) => {
 			const limit = args?.take || 50;
 			const records = Array.from({ length: Math.min(limit, 5) }, (_, i) => ({
 				id: i + 1,
@@ -88,7 +67,7 @@ describe("History Route", async () => {
 	});
 
 	it("GET /history handles Prisma errors (500)", async () => {
-		mockPrisma.history.findMany = mock(() =>
+		mockPrisma.history.findMany.mockImplementation(() =>
 			Promise.reject(new Error("Database connection failed")),
 		);
 
@@ -100,7 +79,7 @@ describe("History Route", async () => {
 		expect(json.status).toBe("SERVER_ERROR");
 		expect(json.error).toBe("Internal Server Error");
 
-		mockPrisma.history.findMany = mock((args) => {
+		mockPrisma.history.findMany.mockImplementation((args) => {
 			const limit = args?.take || 50;
 			const records = Array.from({ length: Math.min(limit, 5) }, (_, i) => ({
 				id: i + 1,

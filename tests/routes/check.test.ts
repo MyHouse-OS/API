@@ -1,38 +1,18 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it } from "bun:test";
 import { encrypt } from "../../src/utils/crypto";
+import { mockPrisma } from "../mocks/prisma";
 
 const encryptedExistingToken = encrypt("ExistingToken");
 const encryptedMasterToken = encrypt("Secret");
-
-const mockPrisma = {
-	client: {
-		findFirst: mock(() =>
-			Promise.resolve({ ClientID: "Master", ClientToken: encryptedMasterToken }),
-		),
-		findUnique: mock((args) => {
-			if (args.where.ClientID === "ExistingClient") {
-				return Promise.resolve({ ClientID: "ExistingClient", ClientToken: encryptedExistingToken });
-			}
-			if (args.where.ClientID === "Master") {
-				return Promise.resolve({ ClientID: "Master", ClientToken: encryptedMasterToken });
-			}
-			return Promise.resolve(null);
-		}),
-	},
-};
-
-mock.module("../../prisma/db", () => ({
-	prisma: mockPrisma,
-}));
 
 describe("Check Route", async () => {
 	const { app } = await import("../../index");
 
 	beforeEach(() => {
-		mockPrisma.client.findFirst = mock(() =>
+		mockPrisma.client.findFirst.mockImplementation(() =>
 			Promise.resolve({ ClientID: "Master", ClientToken: encryptedMasterToken }),
 		);
-		mockPrisma.client.findUnique = mock((args) => {
+		mockPrisma.client.findUnique.mockImplementation((args) => {
 			if (args.where.ClientID === "ExistingClient") {
 				return Promise.resolve({ ClientID: "ExistingClient", ClientToken: encryptedExistingToken });
 			}

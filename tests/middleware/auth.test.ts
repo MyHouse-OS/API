@@ -1,46 +1,16 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it } from "bun:test";
 import { Elysia } from "elysia";
 import { encrypt } from "../../src/utils/crypto";
+import { mockPrisma } from "../mocks/prisma";
 
 const encryptedToken = encrypt("ValidToken");
 const encryptedInvalidToken = encrypt("WrongToken");
-
-const mockPrisma = {
-	client: {
-		findUnique: mock((args) => {
-			const clientId = args?.where?.ClientID;
-			if (clientId === "ValidClient") {
-				return Promise.resolve({
-					ClientID: "ValidClient",
-					ClientToken: encryptedToken,
-				});
-			}
-			if (clientId === "ClientWithCorruptedToken") {
-				return Promise.resolve({
-					ClientID: "ClientWithCorruptedToken",
-					ClientToken: "corrupted:data:not:encrypted",
-				});
-			}
-			if (clientId === "ClientWithWrongToken") {
-				return Promise.resolve({
-					ClientID: "ClientWithWrongToken",
-					ClientToken: encryptedInvalidToken,
-				});
-			}
-			return Promise.resolve(null);
-		}),
-	},
-};
-
-mock.module("../../prisma/db", () => ({
-	prisma: mockPrisma,
-}));
 
 describe("Auth Middleware", async () => {
 	const { authMiddleware } = await import("../../src/middleware/auth");
 
 	beforeEach(() => {
-		mockPrisma.client.findUnique = mock((args) => {
+		mockPrisma.client.findUnique.mockImplementation((args) => {
 			const clientId = args?.where?.ClientID;
 			if (clientId === "ValidClient") {
 				return Promise.resolve({

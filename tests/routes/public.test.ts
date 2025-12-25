@@ -1,18 +1,11 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
-
-const mockPrisma = {
-	$queryRaw: mock(() => Promise.resolve([1])),
-};
-
-mock.module("../../prisma/db", () => ({
-	prisma: mockPrisma,
-}));
+import { beforeEach, describe, expect, it } from "bun:test";
+import { mockPrisma } from "../mocks/prisma";
 
 describe("Public Routes", async () => {
 	const { app } = await import("../../index");
 
 	beforeEach(() => {
-		mockPrisma.$queryRaw = mock(() => Promise.resolve([1]));
+		mockPrisma.$queryRaw.mockImplementation(() => Promise.resolve([1]));
 	});
 
 	it("GET / returns banner", async () => {

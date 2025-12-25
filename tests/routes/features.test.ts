@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { encrypt } from "../../src/utils/crypto";
+import { mockPrisma } from "../mocks/prisma";
 
 const mockState = {
 	id: 1,
@@ -10,35 +11,6 @@ const mockState = {
 };
 
 const encryptedUserToken = encrypt("Token");
-
-const mockPrisma = {
-	client: {
-		findUnique: mock(() => Promise.resolve({ ClientID: "User", ClientToken: encryptedUserToken })),
-		findFirst: mock(() => Promise.resolve(null)),
-		upsert: mock(() => Promise.resolve({})),
-	},
-	homeState: {
-		upsert: mock((args) => {
-			const updated = { ...mockState, ...(args.update || {}) };
-			return Promise.resolve(updated);
-		}),
-		update: mock((args) => {
-			const updated = { ...mockState, ...(args.data || {}) };
-			return Promise.resolve(updated);
-		}),
-		findUnique: mock(() => Promise.resolve(mockState)),
-		findFirst: mock(() => Promise.resolve(mockState)),
-	},
-	history: {
-		create: mock(() => Promise.resolve({ id: 1 })),
-		findMany: mock(() => Promise.resolve([])),
-	},
-	$queryRaw: mock(() => Promise.resolve([1])),
-};
-
-mock.module("../../prisma/db", () => ({
-	prisma: mockPrisma,
-}));
 
 describe("Toggle & Temp Routes", async () => {
 	const { app } = await import("../../index");
@@ -53,24 +25,28 @@ describe("Toggle & Temp Routes", async () => {
 			heat: false,
 		});
 
-		mockPrisma.client.findUnique = mock(() =>
+		// Réinitialiser les mocks avec les valeurs de ce test
+		mockPrisma.client.findUnique.mockImplementation(() =>
 			Promise.resolve({ ClientID: "User", ClientToken: encryptedUserToken }),
 		);
-		mockPrisma.client.findFirst = mock(() => Promise.resolve(null));
-		mockPrisma.client.upsert = mock(() => Promise.resolve({}));
-		mockPrisma.homeState.upsert = mock((args) => {
-			const updated = { ...mockState, ...(args.update || {}) };
+		mockPrisma.client.findFirst.mockImplementation(() => Promise.resolve(null));
+		mockPrisma.client.upsert.mockImplementation(() => Promise.resolve({}));
+
+		mockPrisma.homeState.upsert.mockImplementation((args: { update?: Record<string, unknown> }) => {
+			const updated = { ...mockState, ...(args?.update || {}) };
 			return Promise.resolve(updated);
 		});
-		mockPrisma.homeState.update = mock((args) => {
-			const updated = { ...mockState, ...(args.data || {}) };
+		mockPrisma.homeState.update.mockImplementation((args: { data?: Record<string, unknown> }) => {
+			const updated = { ...mockState, ...(args?.data || {}) };
 			return Promise.resolve(updated);
 		});
-		mockPrisma.homeState.findUnique = mock(() => Promise.resolve({ ...mockState }));
-		mockPrisma.homeState.findFirst = mock(() => Promise.resolve({ ...mockState }));
-		mockPrisma.history.create = mock(() => Promise.resolve({ id: 1 }));
-		mockPrisma.history.findMany = mock(() => Promise.resolve([]));
-		mockPrisma.$queryRaw = mock(() => Promise.resolve([1]));
+		mockPrisma.homeState.findUnique.mockImplementation(() => Promise.resolve({ ...mockState }));
+		mockPrisma.homeState.findFirst.mockImplementation(() => Promise.resolve({ ...mockState }));
+
+		mockPrisma.history.create.mockImplementation(() => Promise.resolve({ id: 1 }));
+		mockPrisma.history.findMany.mockImplementation(() => Promise.resolve([]));
+
+		mockPrisma.$queryRaw.mockImplementation(() => Promise.resolve([1]));
 	});
 
 	it("GET /temp returns current temp", async () => {

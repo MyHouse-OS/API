@@ -23,6 +23,9 @@ depth = 3
 # Répertoire racine des tests
 root = "."
 
+# Précharger les mocks avant les tests
+preload = ["./tests/mocks/prisma.ts"]
+
 # Activer le coverage par défaut
 coverage = true
 

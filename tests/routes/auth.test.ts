@@ -1,37 +1,20 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it } from "bun:test";
 import { encrypt } from "../../src/utils/crypto";
+import { mockPrisma } from "../mocks/prisma";
 
 const encryptedMasterToken = encrypt("Secret");
-
-const mockPrisma = {
-	client: {
-		findUnique: mock((args) => {
-			if (args?.where?.ClientID === "Master") {
-				return Promise.resolve({ ClientID: "Master", ClientToken: encryptedMasterToken });
-			}
-			return Promise.resolve(null);
-		}),
-		upsert: mock((args) =>
-			Promise.resolve({ ClientID: args.create.ClientID, ClientToken: args.create.ClientToken }),
-		),
-	},
-};
-
-mock.module("../../prisma/db", () => ({
-	prisma: mockPrisma,
-}));
 
 describe("Auth Route", async () => {
 	const { app } = await import("../../index");
 
 	beforeEach(() => {
-		mockPrisma.client.findUnique = mock((args) => {
+		mockPrisma.client.findUnique.mockImplementation((args) => {
 			if (args?.where?.ClientID === "Master") {
 				return Promise.resolve({ ClientID: "Master", ClientToken: encryptedMasterToken });
 			}
 			return Promise.resolve(null);
 		});
-		mockPrisma.client.upsert = mock((args) =>
+		mockPrisma.client.upsert.mockImplementation((args) =>
 			Promise.resolve({ ClientID: args.create.ClientID, ClientToken: args.create.ClientToken }),
 		);
 	});

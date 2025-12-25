@@ -1,0 +1,262 @@
+  [WS] New Connection Established | ID: cbbc3e2713c13d07 | Remote: ::1
+  [WS] ✅ Client subscribed to 'home-updates' | ID: cbbc3e2713c13d07
+  [WS] 📤 INIT sent to client
+  78 | 				};
+  79 | 			});
+  80 | 			const message = (await messagePromise) as { type: string; data: Record<string, unknown> };
+  81 | 
+  82 | 			expect(message.type).toBe("INIT");
+  83 | 			expect(message.data).toEqual(mockState);
+                               ^
+  
+  error: expect(received).toEqual(expected)
+  
+    {
+  -   "door": false,
+  +   "door": true,
+      "heat": false,
+  -   "id": 1,
+      "light": false,
+      "temperature": "20",
+    }
+  
+  - Expected  - 2
+  + Received  + 1
+  
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/ws.test.ts:83:25)
+  
+  Error:   {
+  -   "door": false,
+  +   "door": true,
+      "heat": false,
+  -   "id": 1,
+      "light": false,
+      "temperature": "20",
+    }
+  
+  - Expected  - 2
+  + Received  + 1
+  
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/ws.test.ts:83:25)
+  (fail) WebSocket Route > should connect and receive initial state [4.00ms]
+  [WS] 🚪 Connection Closed | Code: 1000 | Reason: 
+  [WS] New Connection Established | ID: b3cc50a2a629c64a | Remote: ::1
+  [WS] ✅ Client subscribed to 'home-updates' | ID: b3cc50a2a629c64a
+  [WS] 📤 INIT sent to client
+  ⚡ Rule triggered: LIGHT_ON_ENTRY
+  🚪 Door opened! Welcome home. Turning light ON.
+  (fail) WebSocket Route > should receive updates from eventBus [5000.99ms]
+    ^ this test timed out after 5000ms.
+
+
+
+    tests/routes/history.test.ts:
+  (pass) History Route > GET /history with default limit (50)
+  (pass) History Route > GET /history with custom limit [1.00ms]
+  (pass) History Route > GET /history returns data ordered by date DESC
+  Failed to fetch history: 87 | 		expect(json.status).toBe("OK");
+  88 | 	});
+  89 | 
+  90 | 	it("GET /history handles Prisma errors (500)", async () => {
+  91 | 		mockPrisma.history.findMany = mock(() =>
+  92 | 			Promise.reject(new Error("Database connection failed")),
+                         ^
+  error: Database connection failed
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/history.test.ts:92:19)
+        at <anonymous> (/home/runner/work/APIServer/APIServer/src/routes/history/index.ts:10:41)
+        at <anonymous> (/home/runner/work/APIServer/APIServer/src/routes/history/index.ts:6:2)
+        at handle (file:///home/runner/work/APIServer/APIServer/node_modules/elysia/dist/bun/index.js:13:153)
+  
+  (pass) History Route > GET /history handles Prisma errors (500) [1.00ms]
+  (pass) History Route > GET /history requires authentication (401)
+  (pass) History Route > GET /history with invalid limit (NaN) uses default [1.00ms]
+
+
+  (pass) Toggle & Temp Routes > GET /temp returns current temp [1.00ms]
+  89 | 				method: "POST",
+  90 | 				headers: { ...authHeader, "Content-Type": "application/json" },
+  91 | 				body: JSON.stringify({ temp: "25.0" }),
+  92 | 			}),
+  93 | 		);
+  94 | 		expect(response.status).toBe(200);
+                                 ^
+  error: expect(received).toBe(expected)
+  
+  Expected: 200
+  Received: 422
+  
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/features.test.ts:94:27)
+  
+  Error: Expected: 200
+  Received: 422
+  
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/features.test.ts:94:27)
+  (fail) Toggle & Temp Routes > POST /temp updates temp [4.00ms]
+  (pass) Toggle & Temp Routes > GET /toggle/light returns state
+  Failed to toggle light: 50 | 	)
+  51 | 	.post(
+  52 | 		"/",
+  53 | 		async ({ set }) => {
+  54 | 			try {
+  55 | 				const newState = await HomeStateService.toggleLight();
+                                                   ^
+  TypeError: HomeStateService.toggleLight is not a function. (In 'HomeStateService.toggleLight()', 'HomeStateService.toggleLight' is undefined)
+        at <anonymous> (/home/runner/work/APIServer/APIServer/src/routes/toggle/light.ts:55:45)
+        at <anonymous> (/home/runner/work/APIServer/APIServer/src/routes/toggle/light.ts:53:3)
+        at handle (file:///home/runner/work/APIServer/APIServer/node_modules/elysia/dist/bun/index.js:12:165)
+  
+  110 | 			new Request("http://localhost/toggle/light", {
+  111 | 				method: "POST",
+  112 | 				headers: authHeader,
+  113 | 			}),
+  114 | 		);
+  115 | 		expect(response.status).toBe(200);
+                                  ^
+  error: expect(received).toBe(expected)
+  
+  Expected: 200
+  Received: 500
+  
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/features.test.ts:115:27)
+  
+  Error: Expected: 200
+  Received: 500
+  
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/features.test.ts:115:27)
+  (fail) Toggle & Temp Routes > POST /toggle/light toggles state [1.00ms]
+  Failed to toggle door: 50 | 	)
+  51 | 	.post(
+  52 | 		"/",
+  53 | 		async ({ set }) => {
+  54 | 			try {
+  55 | 				const newState = await HomeStateService.toggleDoor();
+                                                   ^
+  TypeError: HomeStateService.toggleDoor is not a function. (In 'HomeStateService.toggleDoor()', 'HomeStateService.toggleDoor' is undefined)
+        at <anonymous> (/home/runner/work/APIServer/APIServer/src/routes/toggle/door.ts:55:45)
+        at <anonymous> (/home/runner/work/APIServer/APIServer/src/routes/toggle/door.ts:53:3)
+        at handle (file:///home/runner/work/APIServer/APIServer/node_modules/elysia/dist/bun/index.js:12:165)
+  
+  121 | 			new Request("http://localhost/toggle/door", {
+  122 | 				method: "POST",
+  123 | 				headers: authHeader,
+  124 | 			}),
+  125 | 		);
+  126 | 		expect(response.status).toBe(200);
+                                  ^
+  error: expect(received).toBe(expected)
+  
+  Expected: 200
+  Received: 500
+  
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/features.test.ts:126:27)
+  
+  Error: Expected: 200
+  Received: 500
+  
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/features.test.ts:126:27)
+  (fail) Toggle & Temp Routes > POST /toggle/door toggles state
+  Failed to toggle heat: 50 | 	)
+  51 | 	.post(
+  52 | 		"/",
+  53 | 		async ({ set }) => {
+  54 | 			try {
+  55 | 				const newState = await HomeStateService.toggleHeat();
+                                                   ^
+  TypeError: HomeStateService.toggleHeat is not a function. (In 'HomeStateService.toggleHeat()', 'HomeStateService.toggleHeat' is undefined)
+        at <anonymous> (/home/runner/work/APIServer/APIServer/src/routes/toggle/heat.ts:55:45)
+        at <anonymous> (/home/runner/work/APIServer/APIServer/src/routes/toggle/heat.ts:53:3)
+        at handle (file:///home/runner/work/APIServer/APIServer/node_modules/elysia/dist/bun/index.js:12:165)
+  
+  132 | 			new Request("http://localhost/toggle/heat", {
+  133 | 				method: "POST",
+  134 | 				headers: authHeader,
+  135 | 			}),
+  136 | 		);
+  137 | 		expect(response.status).toBe(200);
+                                  ^
+  error: expect(received).toBe(expected)
+  
+  Expected: 200
+  Received: 500
+  
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/features.test.ts:137:27)
+  
+  Error: Expected: 200
+  Received: 500
+  
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/features.test.ts:137:27)
+  (fail) Toggle & Temp Routes > POST /toggle/heat toggles state
+  143 | 			new Request("http://localhost/toggle/door", { headers: authHeader }),
+  144 | 		);
+  145 | 		expect(response.status).toBe(200);
+  146 | 		const json = await response.json();
+  147 | 		expect(json).toHaveProperty("door");
+  148 | 		expect(json).toMatchSnapshot();
+                       ^
+  error: expect(received).toMatchSnapshot(expected)
+  
+    
+    {
+  -   "door": false,
+  +   "door": true,
+      "status": "OK",
+    }
+    
+  
+  - Expected  - 1
+  + Received  + 1
+  
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/features.test.ts:148:16)
+  
+  Error:   
+    {
+  -   "door": false,
+  +   "door": true,
+      "status": "OK",
+    }
+    
+  
+  - Expected  - 1
+  + Received  + 1
+  
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/features.test.ts:148:16)
+  (fail) Toggle & Temp Routes > GET /toggle/door returns door status [1.00ms]
+  (pass) Toggle & Temp Routes > GET /toggle/heat returns heat status
+  162 | 		mockPrisma.homeState.upsert = mock(() => Promise.reject(new Error("Database error")));
+  163 | 
+  164 | 		const response = await app.handle(
+  165 | 			new Request("http://localhost/toggle/door", { headers: authHeader }),
+  166 | 		);
+  167 | 		expect(response.status).toBe(500);
+                                  ^
+  error: expect(received).toBe(expected)
+  
+  Expected: 500
+  Received: 200
+  
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/features.test.ts:167:27)
+  
+  Error: Expected: 500
+  Received: 200
+  
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/features.test.ts:167:27)
+  (fail) Toggle & Temp Routes > GET /toggle/door handles Prisma errors (500)
+  182 | 				method: "POST",
+  183 | 				headers: { ...authHeader, "Content-Type": "application/json" },
+  184 | 				body: JSON.stringify({ temp: "25.0" }),
+  185 | 			}),
+  186 | 		);
+  187 | 		expect(response.status).toBe(500);
+                                  ^
+  error: expect(received).toBe(expected)
+  
+  Expected: 500
+  Received: 422
+  
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/features.test.ts:187:27)
+  
+  Error: Expected: 500
+  Received: 422
+  
+        at <anonymous> (/home/runner/work/APIServer/APIServer/tests/routes/features.test.ts:187:27)
+  (fail) Toggle & Temp Routes > POST /temp handles Prisma errors (500) [1.00ms]

@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it } from "bun:test";
 import { encrypt } from "../../src/utils/crypto";
+import { mockPrisma } from "../mocks/prisma";
 
 const masterToken = encrypt("MasterSecret");
 
@@ -20,54 +21,6 @@ const mockHistory: Array<{
 }> = [];
 
 let historyId = 1;
-
-const mockPrisma = {
-	client: {
-		findUnique: mock((args) => {
-			const client = mockClients.get(args?.where?.ClientID);
-			return Promise.resolve(client || null);
-		}),
-		upsert: mock((args) => {
-			const clientId = args.create.ClientID;
-			const client = { ClientID: clientId, ClientToken: args.create.ClientToken };
-			mockClients.set(clientId, client);
-			return Promise.resolve(client);
-		}),
-	},
-	homeState: {
-		upsert: mock((args) => {
-			if (args.update && Object.keys(args.update).length > 0) {
-				Object.assign(mockState, args.update);
-			}
-			return Promise.resolve({ ...mockState });
-		}),
-		update: mock((args) => {
-			Object.assign(mockState, args.data);
-			return Promise.resolve({ ...mockState });
-		}),
-		findUnique: mock(() => Promise.resolve({ ...mockState })),
-	},
-	history: {
-		create: mock((args) => {
-			const record = {
-				id: historyId++,
-				type: args.data.type,
-				value: args.data.value,
-				createdAt: new Date(),
-			};
-			mockHistory.push(record);
-			return Promise.resolve(record);
-		}),
-		findMany: mock((args) => {
-			const limit = args?.take || 50;
-			return Promise.resolve(mockHistory.slice(-limit).reverse());
-		}),
-	},
-};
-
-mock.module("../../prisma/db", () => ({
-	prisma: mockPrisma,
-}));
 
 describe("E2E Integration Tests", async () => {
 	mockClients.set("MasterServer", {
@@ -91,6 +44,44 @@ describe("E2E Integration Tests", async () => {
 		if (master) {
 			mockClients.set("MasterServer", master);
 		}
+
+		// Setup mock implementations
+		mockPrisma.client.findUnique.mockImplementation((args) => {
+			const client = mockClients.get(args?.where?.ClientID);
+			return Promise.resolve(client || null);
+		});
+		mockPrisma.client.upsert.mockImplementation((args) => {
+			const clientId = args.create.ClientID;
+			const client = { ClientID: clientId, ClientToken: args.create.ClientToken };
+			mockClients.set(clientId, client);
+			return Promise.resolve(client);
+		});
+		mockPrisma.homeState.upsert.mockImplementation((args) => {
+			if (args.update && Object.keys(args.update).length > 0) {
+				Object.assign(mockState, args.update);
+			}
+			return Promise.resolve({ ...mockState });
+		});
+		mockPrisma.homeState.update.mockImplementation((args) => {
+			Object.assign(mockState, args.data);
+			return Promise.resolve({ ...mockState });
+		});
+		mockPrisma.homeState.findUnique.mockImplementation(() => Promise.resolve({ ...mockState }));
+		mockPrisma.homeState.findFirst.mockImplementation(() => Promise.resolve({ ...mockState }));
+		mockPrisma.history.create.mockImplementation((args) => {
+			const record = {
+				id: historyId++,
+				type: args.data.type,
+				value: args.data.value,
+				createdAt: new Date(),
+			};
+			mockHistory.push(record);
+			return Promise.resolve(record);
+		});
+		mockPrisma.history.findMany.mockImplementation((args) => {
+			const limit = args?.take || 50;
+			return Promise.resolve(mockHistory.slice(-limit).reverse());
+		});
 	});
 
 	describe("Complete authentication and toggle flow", () => {
