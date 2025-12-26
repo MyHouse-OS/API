@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it } from "bun:test";
 import { encrypt } from "../../src/utils/crypto";
 import { mockPrisma } from "../mocks/prisma";
 
@@ -27,18 +27,18 @@ describe("Toggle & Temp Routes", async () => {
 
 		// Réinitialiser les mocks avec les valeurs de ce test
 		mockPrisma.client.findUnique.mockImplementation(() =>
-			Promise.resolve({ ClientID: "User", ClientToken: encryptedUserToken }),
+			Promise.resolve({ ClientID: "User", ClientToken: encryptedUserToken } as never),
 		);
 		mockPrisma.client.findFirst.mockImplementation(() => Promise.resolve(null));
-		mockPrisma.client.upsert.mockImplementation(() => Promise.resolve({}));
+		mockPrisma.client.upsert.mockImplementation(() => Promise.resolve({} as never));
 
-		mockPrisma.homeState.upsert.mockImplementation((args: { update?: Record<string, unknown> }) => {
-			const updated = { ...mockState, ...(args?.update || {}) };
-			return Promise.resolve(updated);
+		mockPrisma.homeState.upsert.mockImplementation((args: never) => {
+			Object.assign(mockState, (args as { update?: Record<string, unknown> })?.update || {});
+			return Promise.resolve({ ...mockState });
 		});
-		mockPrisma.homeState.update.mockImplementation((args: { data?: Record<string, unknown> }) => {
-			const updated = { ...mockState, ...(args?.data || {}) };
-			return Promise.resolve(updated);
+		mockPrisma.homeState.update.mockImplementation((args: never) => {
+			Object.assign(mockState, (args as { data?: Record<string, unknown> })?.data || {});
+			return Promise.resolve({ ...mockState });
 		});
 		mockPrisma.homeState.findUnique.mockImplementation(() => Promise.resolve({ ...mockState }));
 		mockPrisma.homeState.findFirst.mockImplementation(() => Promise.resolve({ ...mockState }));
@@ -135,7 +135,9 @@ describe("Toggle & Temp Routes", async () => {
 	});
 
 	it("GET /toggle/door handles Prisma errors (500)", async () => {
-		mockPrisma.homeState.upsert = mock(() => Promise.reject(new Error("Database error")));
+		mockPrisma.homeState.upsert.mockImplementation(() =>
+			Promise.reject(new Error("Database error")),
+		);
 
 		const response = await app.handle(
 			new Request("http://localhost/toggle/door", { headers: authHeader }),
@@ -143,15 +145,12 @@ describe("Toggle & Temp Routes", async () => {
 		expect(response.status).toBe(500);
 		const json = await response.json();
 		expect(json.status).toBe("SERVER_ERROR");
-
-		mockPrisma.homeState.upsert = mock((args) => {
-			const updated = { ...mockState, ...(args.update || {}) };
-			return Promise.resolve(updated);
-		});
 	});
 
 	it("POST /temp handles Prisma errors (500)", async () => {
-		mockPrisma.homeState.upsert = mock(() => Promise.reject(new Error("Database error")));
+		mockPrisma.homeState.upsert.mockImplementation(() =>
+			Promise.reject(new Error("Database error")),
+		);
 
 		const response = await app.handle(
 			new Request("http://localhost/temp", {
@@ -163,10 +162,5 @@ describe("Toggle & Temp Routes", async () => {
 		expect(response.status).toBe(500);
 		const json = await response.json();
 		expect(json.status).toBe("SERVER_ERROR");
-
-		mockPrisma.homeState.upsert = mock((args) => {
-			const updated = { ...mockState, ...(args.update || {}) };
-			return Promise.resolve(updated);
-		});
 	});
 });

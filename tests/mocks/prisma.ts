@@ -5,29 +5,29 @@ import { mock } from "bun:test";
 
 export const mockPrisma = {
 	client: {
-		findUnique: mock(() => Promise.resolve(null)),
-		findFirst: mock(() => Promise.resolve(null)),
-		upsert: mock(() => Promise.resolve({})),
+		findUnique: mock((..._args: never[]) => Promise.resolve(null)),
+		findFirst: mock((..._args: never[]) => Promise.resolve(null)),
+		upsert: mock((..._args: never[]) => Promise.resolve({})),
 	},
 	homeState: {
-		upsert: mock(() =>
+		upsert: mock((..._args: never[]) =>
 			Promise.resolve({ id: 1, temperature: "20", light: false, door: false, heat: false }),
 		),
-		update: mock(() =>
+		update: mock((..._args: never[]) =>
 			Promise.resolve({ id: 1, temperature: "20", light: false, door: false, heat: false }),
 		),
-		findFirst: mock(() =>
+		findFirst: mock((..._args: never[]) =>
 			Promise.resolve({ id: 1, temperature: "20", light: false, door: false, heat: false }),
 		),
-		findUnique: mock(() =>
+		findUnique: mock((..._args: never[]) =>
 			Promise.resolve({ id: 1, temperature: "20", light: false, door: false, heat: false }),
 		),
 	},
 	history: {
-		create: mock(() => Promise.resolve({ id: 1 })),
-		findMany: mock(() => Promise.resolve([])),
+		create: mock((..._args: never[]) => Promise.resolve({ id: 1 })),
+		findMany: mock((..._args: never[]) => Promise.resolve([])),
 	},
-	$queryRaw: mock(() => Promise.resolve([1])),
+	$queryRaw: mock((..._args: never[]) => Promise.resolve([1])),
 };
 
 // Déclaration du mock global - exécutée une seule fois

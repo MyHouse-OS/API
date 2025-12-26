@@ -33,14 +33,20 @@ describe("WebSocket Route", async () => {
 		// Réinitialiser les mocks pour ce test
 		mockPrisma.client.findUnique.mockImplementation(() => Promise.resolve(null));
 		mockPrisma.client.findFirst.mockImplementation(() => Promise.resolve(null));
-		mockPrisma.client.upsert.mockImplementation(() => Promise.resolve({}));
+		mockPrisma.client.upsert.mockImplementation(() => Promise.resolve({} as never));
 
-		mockPrisma.homeState.upsert.mockImplementation(() => Promise.resolve({ ...mockState }));
-		mockPrisma.homeState.update.mockImplementation(() => Promise.resolve({ ...mockState }));
+		mockPrisma.homeState.upsert.mockImplementation((args: never) => {
+			Object.assign(mockState, (args as { update?: Record<string, unknown> })?.update || {});
+			return Promise.resolve({ ...mockState });
+		});
+		mockPrisma.homeState.update.mockImplementation((args: never) => {
+			Object.assign(mockState, (args as { data?: Record<string, unknown> })?.data || {});
+			return Promise.resolve({ ...mockState });
+		});
 		mockPrisma.homeState.findFirst.mockImplementation(() => Promise.resolve({ ...mockState }));
 		mockPrisma.homeState.findUnique.mockImplementation(() => Promise.resolve({ ...mockState }));
 
-		mockPrisma.history.create.mockImplementation(() => Promise.resolve({}));
+		mockPrisma.history.create.mockImplementation(() => Promise.resolve({} as never));
 		mockPrisma.history.findMany.mockImplementation(() => Promise.resolve([]));
 
 		mockPrisma.$queryRaw.mockImplementation(() => Promise.resolve([1]));
