@@ -33,7 +33,11 @@ describe("Toggle & Temp Routes", async () => {
 		mockPrisma.client.upsert.mockImplementation(() => Promise.resolve({} as never));
 
 		mockPrisma.homeState.upsert.mockImplementation((args: never) => {
-			Object.assign(mockState, (args as { update?: Record<string, unknown> })?.update || {});
+			const updateData = (args as { update?: Record<string, unknown> })?.update;
+			// Ne muter mockState que si update contient réellement des données
+			if (updateData && Object.keys(updateData).length > 0) {
+				Object.assign(mockState, updateData);
+			}
 			return Promise.resolve({ ...mockState });
 		});
 		mockPrisma.homeState.update.mockImplementation((args: never) => {
