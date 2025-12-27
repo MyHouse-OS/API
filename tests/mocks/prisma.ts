@@ -1,5 +1,5 @@
 import { mock } from "bun:test";
-import { fileURLToPath } from "node:url";
+import { db } from "../../prisma/db";
 
 // Mock Prisma centralisé partagé par tous les tests
 // Chaque test peut réinitialiser les implémentations dans beforeEach
@@ -31,17 +31,6 @@ export const mockPrisma = {
 	$queryRaw: mock((..._args: never[]) => Promise.resolve([1])),
 };
 
-// Obtenir le chemin du module prisma/db de manière cross-platform
-// import.meta.resolve retourne une URL (file://...), on la convertit en chemin
-const prismaDbUrl = import.meta.resolve("../../prisma/db");
-const prismaDbPath = fileURLToPath(prismaDbUrl);
-
-// Mock avec le chemin du fichier (sans extension, Bun la résout)
-mock.module(prismaDbPath, () => ({
-	prisma: mockPrisma,
-}));
-
-// Mock aussi avec l'URL directement au cas où Bun l'utilise en interne
-mock.module(prismaDbUrl, () => ({
-	prisma: mockPrisma,
-}));
+// Injecter le mock directement dans le container db
+// Cela fonctionne car prisma est un Proxy qui délègue à db.prisma
+db.prisma = mockPrisma;
