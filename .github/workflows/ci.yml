@@ -39,6 +39,7 @@ jobs:
         if: always()
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          slug: ${{ github.repository }}
           files: ./coverage/lcov.info
           fail_ci_if_error: false
 
