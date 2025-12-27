@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, type Mock, mock } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it, type Mock, mock } from "bun:test";
 import { initRuleEngine } from "../../src/rules/engine";
 import { HomeStateService } from "../../src/services/homeState";
 import { EVENTS, eventBus } from "../../src/utils/eventBus";
@@ -24,6 +24,11 @@ describe("Rule Engine", async () => {
 	beforeEach(() => {
 		eventBus.removeAllListeners(EVENTS.STATE_CHANGE);
 		initRuleEngine();
+	});
+
+	afterEach(() => {
+		// Nettoyer les listeners pour éviter les interférences avec d'autres tests
+		eventBus.removeAllListeners(EVENTS.STATE_CHANGE);
 	});
 
 	it("should turn HEAT ON when temp < 19", async () => {
