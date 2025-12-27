@@ -41,3 +41,4 @@ jobs:
         env:
           ENCRYPTION_KEY: TestEncryptionKey12345678901234
           ENCRYPTION_SALT: TestSalt
+          DATABASE_URL: postgresql://user:password@localhost:5432/test
