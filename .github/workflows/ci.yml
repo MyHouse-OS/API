@@ -25,6 +25,8 @@ jobs:
 
       - name: Generate Prisma Client
         run: bunx --bun prisma generate
+        env:
+          DATABASE_URL: postgresql://user:password@localhost:5432/test
 
       - name: Run tests with coverage
         run: bun test --coverage --coverage-reporter=lcov --timeout 5000
