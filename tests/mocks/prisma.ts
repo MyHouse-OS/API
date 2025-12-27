@@ -30,18 +30,11 @@ export const mockPrisma = {
 	$queryRaw: mock((..._args: never[]) => Promise.resolve([1])),
 };
 
-// Mock du module prisma/db avec différents chemins pour compatibilité cross-platform
-// Le chemin relatif fonctionne depuis les fichiers de test
-mock.module("../../prisma/db", () => ({
-	prisma: mockPrisma,
-}));
+// Utiliser import.meta.resolve pour obtenir le chemin exact du module
+// Cela fonctionne de manière fiable car Bun résout le chemin de la même façon
+// que lors de l'import dans le code source
+const prismaDbUrl = import.meta.resolve("../../prisma/db");
 
-// Mock également avec le chemin depuis la racine du projet (pour le preload)
-mock.module("./prisma/db", () => ({
-	prisma: mockPrisma,
-}));
-
-// Mock pour les imports absolus potentiels
-mock.module("prisma/db", () => ({
+mock.module(prismaDbUrl, () => ({
 	prisma: mockPrisma,
 }));
