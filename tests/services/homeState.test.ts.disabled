@@ -1,0 +1,315 @@
+import { beforeEach, describe, expect, it, type Mock, mock } from "bun:test";
+import { EventType } from "../../src/enums";
+
+const mockState = {
+	id: 1,
+	temperature: "20",
+	light: false,
+	door: false,
+	heat: false,
+};
+
+const mockEventBus = {
+	emit: mock(() => {}),
+};
+
+const mockPrisma = {
+	homeState: {
+		upsert: mock((args) => {
+			if (Object.keys(args.update || {}).length === 0) {
+				return Promise.resolve({ id: 1, ...args.create });
+			}
+			return Promise.resolve({ ...mockState, ...args.update });
+		}),
+		update: mock((args) => {
+			return Promise.resolve({ ...mockState, ...args.data });
+		}),
+		findUnique: mock(() => Promise.resolve(mockState)),
+	},
+	history: {
+		create: mock((args) => {
+			return Promise.resolve({
+				id: Date.now(),
+				type: args.data.type,
+				value: args.data.value,
+				createdAt: new Date(),
+			});
+		}),
+	},
+};
+
+mock.module("../../prisma/db", () => ({ prisma: mockPrisma }));
+mock.module("../../src/utils/eventBus", () => ({
+	eventBus: mockEventBus,
+	EVENTS: {
+		STATE_CHANGE: "STATE_CHANGE",
+		NEW_CONNECTION: "NEW_CONNECTION",
+	},
+}));
+
+describe("HomeState Service", async () => {
+	const { HomeStateService } = await import("../../src/services/homeState");
+
+	beforeEach(() => {
+		(mockPrisma.homeState.upsert as Mock).mockClear();
+		(mockPrisma.homeState.update as Mock).mockClear();
+		(mockPrisma.homeState.findUnique as Mock).mockClear();
+		(mockPrisma.history.create as Mock).mockClear();
+		(mockEventBus.emit as Mock).mockClear();
+	});
+
+	describe("get() and ensureStateExists()", () => {
+		it("creates new state if it doesn't exist", async () => {
+			(mockPrisma.homeState.upsert as Mock).mockResolvedValueOnce({
+				id: 1,
+				temperature: "0",
+				light: false,
+				door: false,
+				heat: false,
+			});
+
+			const result = await HomeStateService.get();
+
+			expect(mockPrisma.homeState.upsert).toHaveBeenCalledWith({
+				where: { id: 1 },
+				update: {},
+				create: {
+					temperature: "0",
+					light: false,
+					door: false,
+					heat: false,
+				},
+			});
+			expect(result.temperature).toBe("0");
+		});
+
+		it("returns existing state", async () => {
+			const result = await HomeStateService.get();
+
+			expect(mockPrisma.homeState.upsert).toHaveBeenCalled();
+			expect(result).toBeDefined();
+		});
+	});
+
+	describe("updateTemperature()", () => {
+		it("updates temperature correctly", async () => {
+			const newTemp = "25.5";
+			await HomeStateService.updateTemperature(newTemp);
+
+			expect(mockPrisma.homeState.upsert).toHaveBeenCalledWith(
+				expect.objectContaining({
+					update: { temperature: newTemp },
+				}),
+			);
+		});
+
+		it("creates history record with TEMPERATURE type", async () => {
+			const newTemp = "22.0";
+			await HomeStateService.updateTemperature(newTemp);
+
+			expect(mockPrisma.history.create).toHaveBeenCalledWith({
+				data: {
+					type: EventType.TEMPERATURE,
+					value: newTemp,
+				},
+			});
+		});
+
+		it("emits STATE_CHANGE event via eventBus", async () => {
+			const newTemp = "21.5";
+			await HomeStateService.updateTemperature(newTemp);
+
+			expect(mockEventBus.emit).toHaveBeenCalledWith("STATE_CHANGE", {
+				type: EventType.TEMPERATURE,
+				value: newTemp,
+			});
+		});
+	});
+
+	describe("toggleLight()", () => {
+		it("toggles light from false to true", async () => {
+			(mockPrisma.homeState.upsert as Mock).mockResolvedValueOnce({
+				...mockState,
+				light: false,
+			});
+
+			await HomeStateService.toggleLight();
+
+			expect(mockPrisma.homeState.update).toHaveBeenCalledWith({
+				where: { id: 1 },
+				data: { light: true },
+			});
+		});
+
+		it("toggles light from true to false", async () => {
+			(mockPrisma.homeState.upsert as Mock).mockResolvedValueOnce({
+				...mockState,
+				light: true,
+			});
+
+			await HomeStateService.toggleLight();
+
+			expect(mockPrisma.homeState.update).toHaveBeenCalledWith({
+				where: { id: 1 },
+				data: { light: false },
+			});
+		});
+	});
+
+	describe("setLight()", () => {
+		it("sets light to true and logs history", async () => {
+			await HomeStateService.setLight(true);
+
+			expect(mockPrisma.homeState.update).toHaveBeenCalledWith({
+				where: { id: 1 },
+				data: { light: true },
+			});
+			expect(mockPrisma.history.create).toHaveBeenCalledWith({
+				data: {
+					type: EventType.LIGHT,
+					value: "true",
+				},
+			});
+		});
+
+		it("sets light to false and logs history", async () => {
+			await HomeStateService.setLight(false);
+
+			expect(mockPrisma.homeState.update).toHaveBeenCalledWith({
+				where: { id: 1 },
+				data: { light: false },
+			});
+			expect(mockPrisma.history.create).toHaveBeenCalledWith({
+				data: {
+					type: EventType.LIGHT,
+					value: "false",
+				},
+			});
+		});
+	});
+
+	describe("toggleDoor()", () => {
+		it("toggles door from false to true", async () => {
+			(mockPrisma.homeState.upsert as Mock).mockResolvedValueOnce({
+				...mockState,
+				door: false,
+			});
+
+			await HomeStateService.toggleDoor();
+
+			expect(mockPrisma.homeState.update).toHaveBeenCalledWith({
+				where: { id: 1 },
+				data: { door: true },
+			});
+		});
+
+		it("toggles door from true to false", async () => {
+			(mockPrisma.homeState.upsert as Mock).mockResolvedValueOnce({
+				...mockState,
+				door: true,
+			});
+
+			await HomeStateService.toggleDoor();
+
+			expect(mockPrisma.homeState.update).toHaveBeenCalledWith({
+				where: { id: 1 },
+				data: { door: false },
+			});
+		});
+	});
+
+	describe("setDoor()", () => {
+		it("sets door to true and logs history", async () => {
+			await HomeStateService.setDoor(true);
+
+			expect(mockPrisma.homeState.update).toHaveBeenCalledWith({
+				where: { id: 1 },
+				data: { door: true },
+			});
+			expect(mockPrisma.history.create).toHaveBeenCalledWith({
+				data: {
+					type: EventType.DOOR,
+					value: "true",
+				},
+			});
+		});
+
+		it("sets door to false and logs history", async () => {
+			await HomeStateService.setDoor(false);
+
+			expect(mockPrisma.homeState.update).toHaveBeenCalledWith({
+				where: { id: 1 },
+				data: { door: false },
+			});
+			expect(mockPrisma.history.create).toHaveBeenCalledWith({
+				data: {
+					type: EventType.DOOR,
+					value: "false",
+				},
+			});
+		});
+	});
+
+	describe("toggleHeat()", () => {
+		it("toggles heat from false to true", async () => {
+			(mockPrisma.homeState.upsert as Mock).mockResolvedValueOnce({
+				...mockState,
+				heat: false,
+			});
+
+			await HomeStateService.toggleHeat();
+
+			expect(mockPrisma.homeState.update).toHaveBeenCalledWith({
+				where: { id: 1 },
+				data: { heat: true },
+			});
+		});
+
+		it("toggles heat from true to false", async () => {
+			(mockPrisma.homeState.upsert as Mock).mockResolvedValueOnce({
+				...mockState,
+				heat: true,
+			});
+
+			await HomeStateService.toggleHeat();
+
+			expect(mockPrisma.homeState.update).toHaveBeenCalledWith({
+				where: { id: 1 },
+				data: { heat: false },
+			});
+		});
+	});
+
+	describe("setHeat()", () => {
+		it("sets heat to true and logs history", async () => {
+			await HomeStateService.setHeat(true);
+
+			expect(mockPrisma.homeState.update).toHaveBeenCalledWith({
+				where: { id: 1 },
+				data: { heat: true },
+			});
+			expect(mockPrisma.history.create).toHaveBeenCalledWith({
+				data: {
+					type: EventType.HEAT,
+					value: "true",
+				},
+			});
+		});
+
+		it("sets heat to false and logs history", async () => {
+			await HomeStateService.setHeat(false);
+
+			expect(mockPrisma.homeState.update).toHaveBeenCalledWith({
+				where: { id: 1 },
+				data: { heat: false },
+			});
+			expect(mockPrisma.history.create).toHaveBeenCalledWith({
+				data: {
+					type: EventType.HEAT,
+					value: "false",
+				},
+			});
+		});
+	});
+
+});

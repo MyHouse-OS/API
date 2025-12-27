@@ -1,0 +1,14 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`Check Route GET /check returns exists:true for existing client 1`] = `
+{
+  "exists": true,
+  "token": "ExistingToken",
+}
+`;
+
+exports[`Check Route GET /check returns exists:false for unknown client 1`] = `
+{
+  "exists": false,
+}
+`;

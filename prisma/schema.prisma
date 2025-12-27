@@ -2,10 +2,8 @@
 // Learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider   = "prisma-client"
-  output     = "./generated"
-  engineType = "client"
-  runtime    = "bun"
+  provider        = "prisma-client"
+  output          = "./generated"
 }
 
 datasource db {
@@ -32,4 +30,18 @@ model HomeState {
   heat        Boolean  @default(false)
   updatedAt   DateTime @default(now()) @updatedAt
   createdAt   DateTime @default(now())
+}
+
+model History {
+  id        Int       @id @default(autoincrement())
+  type      EventType
+  value     String
+  createdAt DateTime  @default(now())
+}
+
+enum EventType {
+  TEMPERATURE
+  LIGHT
+  DOOR
+  HEAT
 }

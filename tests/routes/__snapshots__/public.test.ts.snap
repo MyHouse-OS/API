@@ -1,0 +1,20 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`Public Routes GET / returns banner 1`] = `Response (0.97 KB) {
+  ok: true,
+  url: "",
+  status: 200,
+  statusText: "",
+  headers: Headers {},
+  redirected: false,
+  bodyUsed: false,
+  Blob (0.97 KB)
+}Response {}`;
+
+exports[`Public Routes GET /status returns OK 1`] = `
+{
+  "database": "Connected",
+  "status": "OK",
+  "uptime": Any<Number>,
+}
+`;
