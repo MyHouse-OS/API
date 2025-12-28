@@ -3,9 +3,9 @@ import { db } from "../../prisma/db";
 
 export const mockPrisma = {
 	client: {
-		findUnique: mock((..._args: never[]) => Promise.resolve(null)),
-		findFirst: mock((..._args: never[]) => Promise.resolve(null)),
-		upsert: mock((..._args: never[]) => Promise.resolve({})),
+		findUnique: mock((..._args: unknown[]) => Promise.resolve(null as unknown)),
+		findFirst: mock((..._args: unknown[]) => Promise.resolve(null as unknown)),
+		upsert: mock((..._args: unknown[]) => Promise.resolve({} as unknown)),
 	},
 	homeState: {
 		upsert: mock((..._args: never[]) =>

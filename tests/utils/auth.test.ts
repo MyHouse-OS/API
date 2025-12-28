@@ -64,4 +64,21 @@ describe("verifyClientAuth", async () => {
 		expect(result.clientId).toBe("validClient");
 		expect(result.error).toBeUndefined();
 	});
+
+	it("returns error when token decryption fails", async () => {
+		mockPrisma.client.findUnique.mockImplementation((args: unknown) => {
+			const typedArgs = args as { where?: { ClientID?: string } } | undefined;
+			if (typedArgs?.where?.ClientID === "corruptedClient") {
+				return Promise.resolve({
+					ClientID: "corruptedClient",
+					ClientToken: "invalid-encrypted-data",
+				});
+			}
+			return Promise.resolve(null);
+		});
+
+		const result = await verifyClientAuth("corruptedClient:anytoken");
+		expect(result.valid).toBe(false);
+		expect(result.error).toBe("Invalid credentials");
+	});
 });

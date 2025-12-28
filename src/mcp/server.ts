@@ -3,6 +3,39 @@ import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/
 import { verifyClientAuth } from "../utils/auth";
 import { setAuthorization, tools } from "./tools";
 
+export interface McpToolResponse {
+	content: Array<{ type: "text"; text: string }>;
+	isError?: boolean;
+}
+
+export async function wrapToolHandler(
+	handler: (args: Record<string, unknown>) => Promise<unknown>,
+	args: Record<string, unknown>,
+): Promise<McpToolResponse> {
+	try {
+		const result = await handler(args);
+		return {
+			content: [
+				{
+					type: "text" as const,
+					text: JSON.stringify(result, null, 2),
+				},
+			],
+		};
+	} catch (error) {
+		const message = error instanceof Error ? error.message : "Unknown error";
+		return {
+			content: [
+				{
+					type: "text" as const,
+					text: JSON.stringify({ error: message }, null, 2),
+				},
+			],
+			isError: true,
+		};
+	}
+}
+
 const corsHeaders = {
 	"Access-Control-Allow-Origin": "*",
 	"Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
@@ -21,28 +54,10 @@ export async function startMcpServer() {
 
 	for (const [name, tool] of Object.entries(tools)) {
 		server.tool(name, tool.description, tool.inputSchema.shape, async (args) => {
-			try {
-				const result = await tool.handler(args as Parameters<typeof tool.handler>[0]);
-				return {
-					content: [
-						{
-							type: "text" as const,
-							text: JSON.stringify(result, null, 2),
-						},
-					],
-				};
-			} catch (error) {
-				const message = error instanceof Error ? error.message : "Unknown error";
-				return {
-					content: [
-						{
-							type: "text" as const,
-							text: JSON.stringify({ error: message }, null, 2),
-						},
-					],
-					isError: true,
-				};
-			}
+			return wrapToolHandler(
+				tool.handler as (args: Record<string, unknown>) => Promise<unknown>,
+				args,
+			);
 		});
 	}
 
