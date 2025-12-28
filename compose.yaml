@@ -25,6 +25,7 @@ services:
     container_name: MyHouseServer
     ports:
       - "0.0.0.0:3000:3000"
+      - "0.0.0.0:3001:3001"
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://root:root@db:5432/myhouse
