@@ -13,7 +13,6 @@ const mockState = {
 const encryptedUserToken = encrypt("Token");
 
 // TODO: Ces tests sont skippés car le mocking Prisma ne fonctionne pas de manière fiable
-// entre Windows (local) et Linux (CI). À investiguer avec une future version de Bun.
 describe.skip("Toggle & Temp Routes", async () => {
 	const { app } = await import("../../index");
 	const authHeader = { Authorization: "User:Token" };
@@ -27,7 +26,6 @@ describe.skip("Toggle & Temp Routes", async () => {
 			heat: false,
 		});
 
-		// Réinitialiser les mocks avec les valeurs de ce test
 		mockPrisma.client.findUnique.mockImplementation(() =>
 			Promise.resolve({ ClientID: "User", ClientToken: encryptedUserToken } as never),
 		);
@@ -36,7 +34,6 @@ describe.skip("Toggle & Temp Routes", async () => {
 
 		mockPrisma.homeState.upsert.mockImplementation((args: never) => {
 			const updateData = (args as { update?: Record<string, unknown> })?.update;
-			// Ne muter mockState que si update contient réellement des données
 			if (updateData && Object.keys(updateData).length > 0) {
 				Object.assign(mockState, updateData);
 			}
