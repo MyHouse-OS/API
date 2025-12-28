@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
-import { tools, setAuthorization } from "./tools";
 import { verifyClientAuth } from "../utils/auth";
+import { setAuthorization, tools } from "./tools";
 
 const corsHeaders = {
 	"Access-Control-Allow-Origin": "*",

@@ -2,10 +2,10 @@ import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import figlet from "figlet";
+import { startMcpServer } from "./src/mcp/server";
 import { routes } from "./src/routes";
 import { initRuleEngine } from "./src/rules/engine";
 import { EVENTS, eventBus } from "./src/utils/eventBus";
-import { startMcpServer } from "./src/mcp/server";
 
 export const app = new Elysia()
 	.use(
