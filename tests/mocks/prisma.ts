@@ -1,9 +1,6 @@
 import { mock } from "bun:test";
 import { db } from "../../prisma/db";
 
-// Mock Prisma centralisé partagé par tous les tests
-// Chaque test peut réinitialiser les implémentations dans beforeEach
-
 export const mockPrisma = {
 	client: {
 		findUnique: mock((..._args: never[]) => Promise.resolve(null)),
@@ -31,6 +28,4 @@ export const mockPrisma = {
 	$queryRaw: mock((..._args: never[]) => Promise.resolve([1])),
 };
 
-// Injecter le mock directement dans le container db
-// Cela fonctionne car prisma est un Proxy qui délègue à db.prisma
 db.prisma = mockPrisma;

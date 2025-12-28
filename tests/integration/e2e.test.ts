@@ -45,7 +45,6 @@ describe("E2E Integration Tests", async () => {
 			mockClients.set("MasterServer", master);
 		}
 
-		// Setup mock implementations
 		mockPrisma.client.findUnique.mockImplementation((args) => {
 			const client = mockClients.get(args?.where?.ClientID);
 			return Promise.resolve(client || null);

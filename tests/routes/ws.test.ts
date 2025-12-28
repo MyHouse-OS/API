@@ -11,7 +11,6 @@ const mockState = {
 };
 
 // TODO: Ces tests sont skippés car le mocking Prisma ne fonctionne pas de manière fiable
-// entre Windows (local) et Linux (CI). À investiguer avec une future version de Bun.
 describe.skip("WebSocket Route", async () => {
 	const { app } = await import("../../index");
 
@@ -32,14 +31,12 @@ describe.skip("WebSocket Route", async () => {
 			heat: false,
 		});
 
-		// Réinitialiser les mocks pour ce test
 		mockPrisma.client.findUnique.mockImplementation(() => Promise.resolve(null));
 		mockPrisma.client.findFirst.mockImplementation(() => Promise.resolve(null));
 		mockPrisma.client.upsert.mockImplementation(() => Promise.resolve({} as never));
 
 		mockPrisma.homeState.upsert.mockImplementation((args: never) => {
 			const updateData = (args as { update?: Record<string, unknown> })?.update;
-			// Ne muter mockState que si update contient réellement des données
 			if (updateData && Object.keys(updateData).length > 0) {
 				Object.assign(mockState, updateData);
 			}
@@ -74,7 +71,6 @@ describe.skip("WebSocket Route", async () => {
 			const message = (await messagePromise) as { type: string; data: Record<string, unknown> };
 
 			expect(message.type).toBe("INIT");
-			// Vérifie la structure plutôt que les valeurs exactes pour éviter les problèmes d'isolation
 			expect(message.data).toHaveProperty("temperature");
 			expect(message.data).toHaveProperty("light");
 			expect(message.data).toHaveProperty("door");
@@ -88,13 +84,11 @@ describe.skip("WebSocket Route", async () => {
 		const ws = new WebSocket(wsUrl);
 
 		try {
-			// Attendre que la connexion soit ouverte
 			await new Promise<void>((resolve) => {
 				if (ws.readyState === WebSocket.OPEN) resolve();
 				else ws.onopen = () => resolve();
 			});
 
-			// Attendre le message INIT d'abord
 			await new Promise<void>((resolve) => {
 				ws.onmessage = (event) => {
 					const msg = JSON.parse(event.data as string);
@@ -104,7 +98,6 @@ describe.skip("WebSocket Route", async () => {
 				};
 			});
 
-			// Maintenant écouter les updates
 			const updatePromise = new Promise<{ type: string; data: Record<string, unknown> }>(
 				(resolve) => {
 					ws.onmessage = (event) => {
@@ -116,7 +109,6 @@ describe.skip("WebSocket Route", async () => {
 				},
 			);
 
-			// Émettre l'événement après avoir configuré le listener
 			eventBus.emit(EVENTS.STATE_CHANGE, { type: "TEMP", value: "25.0" });
 
 			const update = await updatePromise;

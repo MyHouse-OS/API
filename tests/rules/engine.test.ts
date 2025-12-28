@@ -27,7 +27,6 @@ describe("Rule Engine", async () => {
 	});
 
 	afterEach(() => {
-		// Nettoyer les listeners pour éviter les interférences avec d'autres tests
 		eventBus.removeAllListeners(EVENTS.STATE_CHANGE);
 	});
 
