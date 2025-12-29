@@ -2,7 +2,8 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import { PrismaClient } from "./generated/client";
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString =
+	process.env.DATABASE_URL || "postgresql://root:root@localhost:5432/myhouse";
 
 // biome-ignore lint/suspicious/noExplicitAny: Dynamic prisma type for test/prod
 type PrismaType = PrismaClient | any;
